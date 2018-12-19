@@ -2,249 +2,161 @@
 #include <OctoWS2811.h>
 #include "synapse_lib.h"
 
-SimpleChase::SimpleChase(
-    //Adafruit_NeoPixel &strip,
-    OctoWS2811& strip,
-    int first,
-    int last,
-    int red,
-    int green,
-    int blue,
-    float fade_factor,
-    int rate): _strip(strip)
- {
-  //_strip = strip;
-  _red = red;
-  _green = green;
-  _blue = blue;
-//  _fade_factor = fade_factor;
-  _fade_factor = fade_factor;
-  _rate = rate;
+Synapse::Synapse(
+        //Adafruit_NeoPixel &strip,
+        OctoWS2811 &strip,
+        int _first,
+        int _last,
+        int _red,
+        int _green,
+        int _blue,
+        float _fade_factor,
+        int _rate) : _strip(strip) {
+    //_strip = strip;
+    red = _red;
+    green = _green;
+    blue = _blue;
+//  fade_factor = fade_factor;
+    fade_factor = _fade_factor;
+    rate = _rate;
 
-  _start_num = first;  // starting pixel number
-  _end_num = last;  // ending pixel number
+    strip_start_position = _first;
+    strip_end_position = _last;
 
-  _head_num = _start_num;  // initialize head to start
-  _tail_num = _start_num;  // initilize tail to start
+    first_lit_pixel_position = strip_start_position;
+    last_lit_pixel_position = strip_start_position;
 
-  _drop_count = 0;
-  _delay = 0;
+    drop_count = 0;
+    start_delay = 0;
 }
 
-//void SimpleChase::Chase()
-//{
-//  int _start_num = 0;
-//  int _end_num = 144;
-//  int _tail_length = 0;
-////  for(uint16_t i=0; i<_strip.numPixels(); i++)
-//   // run the chase with tail 
-//  for(uint16_t i=_start_num; i<_end_num; i++)
-//  {
-//    _strip.setPixelColor(i, _strip.Color(_red,_green,_blue));
-//    int _fade_count=i;
-//    int _scaled_red=255;
-//
-//    _tail_length = 0;
-//    while(_fade_count>0 && _scaled_red>0)
-//    {
-//      _scaled_red=(float)_scaled_red*_fade_factor;
-//      _fade_count-=1;
-//      _strip.setPixelColor(_fade_count, _strip.Color(_scaled_red,0,0));
-//      _tail_length += 1
-//    }
-//    _strip.show();
-//    delay(1);
-//  }
-//}
 
-void SimpleChase::ChaseLoop() {
-  int _head_num = _start_num;  // head of the chase
-  int _tail_num = _start_num;  // tail of the chase
-  while (_tail_num < _end_num) 
-  {
-    if (_head_num < _end_num)  // dont update pixels beyond the end
-    {
-      //_strip.setPixelColor(_head_num, _strip.Color(_red, _green, _blue));
-      _setPixel(_head_num, _red, _green, _blue);
+void Synapse::ChaseLoop() {
+    while (true) {
+        ChaseStep();
+        _strip.show();
+        delay(1);
     }
-    int _fade_count = _head_num;
-
-    int _scaled_red = _red;
-    int _scaled_green = _green;
-    int _scaled_blue = _blue;
-    int _total_color = _scaled_red + _scaled_green + _scaled_blue;
-
-     // walk back from the head and program dimmer pixels
-     // until either _start_num is reached or brightness reaches zero
-    while (_fade_count > _start_num && _total_color > 0) {
-      _scaled_red = (float)_scaled_red * _fade_factor;
-      _scaled_green = (float)_scaled_green * _fade_factor;
-      _scaled_blue = (float)_scaled_blue * _fade_factor;
-      _total_color = _scaled_red + _scaled_green + _scaled_blue;
-
-      _fade_count -= 1;
-      if (_fade_count < _end_num)  // dont update pixels beyond the end
-      {
-        //_strip.setPixelColor(_fade_count, _strip.Color(_scaled_red, _scaled_green, _scaled_blue));
-        _setPixel(_fade_count, _scaled_red, _scaled_green, _scaled_blue);
-      }
-    }
-    _tail_num = _fade_count;  // update the tail position
-    _head_num += 1;  // move the head forward
-
-    _strip.show();
-    delay(1);
-  }
 }
 
-void SimpleChase::Chase()
-{
-  while (1)
-  {
-    ChaseStep();
-    _strip.show();
-    delay(1);
-  }
-}
-
-int SimpleChase::ChaseStep()
-{
-  if (_delay > 0)
-  {
-    _delay -= 1;
-    run_status = 1;
-    return 0;
-  }
-
-  if (_rate >= 10)
-  {
-      //  Serial.println("rate gt.e 10");
-    _ChaseStep();
-  }
-  else if (_rate >= 0)
-  {
-     //  Serial.println("rate gt.e 0");
-    if (_drop_count > 0)
-    {
-      _ChaseStep();
-      _drop_count -= 1;
+int Synapse::ChaseStep() {
+    if (start_delay > 0) {
+        start_delay -= 1;
+        run_status = DELAYED;
+        return 0;
     }
-    else
-    {
-      _drop_count = max(_rate, 1);
-    }
-  }
-  else if (_rate > -10)
-  {
+
+    if (rate >= 10) {
+        //  Serial.println("rate gt.e 10");
+        Chase();
+    } else if (rate >= 0) {
+        //  Serial.println("rate gt.e 0");
+        if (drop_count > 0) {
+            Chase();
+            drop_count -= 1;
+        } else {
+            drop_count = max(rate, 1);
+        }
+    } else if (rate > -10) {
 //    Serial.println("rate gt -10");
 //    Serial.print("drop count: ");
-//    Serial.println(_drop_count);
-    if (_drop_count == 0)
-    {
-      _ChaseStep();
-      _drop_count = max(-_rate, 10);
+//    Serial.println(drop_count);
+        if (drop_count == 0) {
+            Chase();
+            drop_count = max(-rate, 10);
+        } else {
+            drop_count -= 1;
+        }
     }
-    else
-    {
-      _drop_count -= 1;
+
+    if (last_lit_pixel_position == strip_end_position) {
+        start_delay = random(0, 100);
+        run_status = LAST_PIXEL;
+        return 0;
+    } else {
+        run_status = RUNNING;
+        return 1;
     }
-  }
-  if (_tail_num == _end_num)
-  {
-    _delay = random(0, 100);
-    run_status = 0;
-    return 0;
-  }
-  else
-  {
-    run_status = 1;
-    return 1;
-  }
 }
 
-void SimpleChase::_Set_Random_Color()
-{
-//    _red = random(0, 255);
-//    _green = random(0,255);
-//    _blue = random(0,255);
+void Synapse::Set_Random_Color() {
 
-    int _color_count = sizeof(robo_colors)/(sizeof(int) * 3);  // number of rgb colors in color array
+    int _color_count = sizeof(synapse_palette) / (sizeof(synapse_palette[0]));
     int _new_color = random(0, _color_count);
 
-    _red = robo_colors[_new_color][0];
-    _green = robo_colors[_new_color][1];
-    _blue = robo_colors[_new_color][2];
+    red = synapse_palette[_new_color][0];
+    green = synapse_palette[_new_color][1];
+    blue = synapse_palette[_new_color][2];
 }
 
-int SimpleChase::_Direction(int pixel_number)
-{
-  if (_direction == 0) {
-    return pixel_number;
-  }
-  else {
-    return _start_num + _end_num - pixel_number - 1;
-  }
-}
-
-void SimpleChase::_Set_Random_Tail()
-{
-  int tail_factor = random(85,99);
-  _fade_factor = (float)tail_factor/100;
-}
-
-
-void SimpleChase::_ChaseStep()
-{
-  if (_tail_num >= _end_num)
-  {
-    _Set_Random_Color();
-    //_direction = random(0, 2);
-    _direction = 0;
-    _Set_Random_Tail();
-    _rate = random(1,5);
-
-    _head_num = _start_num;
-    _tail_num = _start_num;
-  }
-
-  if (_head_num < _end_num)  // dont update pixels beyond the end
-  {
-    //_strip.setPixelColor(_Direction(_head_num), _strip.Color(_red, _green, _blue));
-    _setPixel(_Direction(_head_num), _red, _green, _blue);
-    
-  }
-  int _fade_count = _head_num;
-
-  int _scaled_red = _red;
-  int _scaled_green = _green;
-  int _scaled_blue = _blue;
-  int _total_color = _scaled_red + _scaled_green + _scaled_blue;
-
-  // walk back from the head and program dimmer pixels
-  // until either _start_num is reached or brightness reaches zero
-  while(_fade_count>_start_num && _total_color>0) 
-  {
-    _scaled_red = (float)_scaled_red * _fade_factor;
-    _scaled_green = (float)_scaled_green * _fade_factor;
-    _scaled_blue = (float)_scaled_blue * _fade_factor;
-    _total_color = _scaled_red + _scaled_green + _scaled_blue;
-    
-    _fade_count -= 1;
-    if (_fade_count < _end_num)  // dont update pixels beyond the end
-    {
-      //_strip.setPixelColor(_Direction(_fade_count), _strip.Color(_scaled_red, _scaled_green, _scaled_blue));
-      _setPixel(_Direction(_fade_count), _scaled_red, _scaled_green, _scaled_blue);
+int Synapse::AdjustChaseDirection(int pixel_number) {
+    if (chase_direction == 0) {
+        return pixel_number;
+    } else {
+        return strip_start_position + strip_end_position - pixel_number - 1;
     }
-  }
-  _tail_num = _fade_count;  // update the tail position
-  _head_num += 1;  // move the head forward
-  
 }
 
-void SimpleChase::_setPixel(int pixel_num, int red, int green, int blue)
-{
-  int color = (red<<16) + (green<<8) + blue;
-  
-  _strip.setPixel(pixel_num, color);
-  
+void Synapse::Set_Random_Tail() {
+    int tail_factor = random(85, 99);
+    fade_factor = (float) tail_factor / 100;
 }
+
+void Synapse::NewSynapse() {
+    Set_Random_Color();
+    chase_direction = random(0, 2);
+    //chase_direction = 0;
+    Set_Random_Tail();
+    rate = random(1, 5);
+}
+
+void Synapse::Chase() {
+    if (last_lit_pixel_position >= strip_end_position) {
+
+        NewSynapse();
+
+        first_lit_pixel_position = strip_start_position;
+        last_lit_pixel_position = strip_start_position;
+    }
+
+    if (first_lit_pixel_position < strip_end_position)
+    {
+        //_strip.setPixelColor(AdjustChaseDirection(first_lit_pixel_position), _strip.Color(red, green, blue));
+        SetPixel(AdjustChaseDirection(first_lit_pixel_position), red, green, blue);
+
+    }
+
+    int _fade_count = first_lit_pixel_position;
+
+    int _scaled_red = red;
+    int _scaled_green = green;
+    int _scaled_blue = blue;
+    int _total_color = _scaled_red + _scaled_green + _scaled_blue;
+
+    // walk back from the head and program dimmer pixels
+    // until either strip_start_position is reached or brightness reaches zero
+    while (_fade_count > strip_start_position && _total_color > 0) {
+        _scaled_red = (float) _scaled_red * fade_factor;
+        _scaled_green = (float) _scaled_green * fade_factor;
+        _scaled_blue = (float) _scaled_blue * fade_factor;
+        _total_color = _scaled_red + _scaled_green + _scaled_blue;
+
+        _fade_count -= 1;
+        if (_fade_count < strip_end_position)  // don't update pixels beyond the end
+        {
+            //_strip.setPixelColor(AdjustChaseDirection(_fade_count), _strip.Color(_scaled_red, _scaled_green, _scaled_blue));
+            SetPixel(AdjustChaseDirection(_fade_count), _scaled_red, _scaled_green, _scaled_blue);
+        }
+    }
+    last_lit_pixel_position = _fade_count;  // update the tail position
+    first_lit_pixel_position += 1;  // move the head forward
+
+}
+
+void Synapse::SetPixel(int pixel_num, int red, int green, int blue) {
+    int color = (red << 16) + (green << 8) + blue;
+
+    _strip.setPixel(pixel_num, color);
+
+}
+

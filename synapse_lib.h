@@ -5,63 +5,75 @@
 //#include <Adafruit_NeoPixel.h>
 #include <OctoWS2811.h>
 
-const int robo_colors[7][3] = {
-    {255, 0, 0},// red
-    {0, 255, 0},// green
-    {0, 0, 255},// blue
-    {255, 255, 0},// ???
-    {255, 0, 255},// ???
-    {0, 255, 255},// ???
-    {255, 255, 255}// white
-  };
+// color palette provides better control than selecting RBG elements randomly
+const int synapse_palette[7][3] = {
+        {255, 0,   0},    // red
+        {0,   255, 0},    // green
+        {0,   0,   255},  // blue
+        {255, 255, 0},    // ???
+        {255, 0,   255},  // ???
+        {0,   255, 255},  // ???
+        {255, 255, 255}   // white
+};
 
-class SimpleChase
-{
-  //Adafruit_NeoPixel _strip;
-  OctoWS2811& _strip;
-  int _red;
-  int _green;
-  int _blue;
-  float _fade_factor;
+enum running_status {
+    STOPPED, DELAYED, RUNNING, LAST_PIXEL
+};
 
-  int _start_num; // starting pixel number
-  int _end_num; // ending pixel number
+class Synapse {
+    //Adafruit_NeoPixel _strip;
+    OctoWS2811 &_strip;
+    int red;
+    int green;
+    int blue;
+    float fade_factor;
 
-  int _rate; // step drop rate
-  int _drop_count; // numer of steps until one is dropped
+    int strip_start_position; // starting pixel number
+    int strip_end_position; // ending pixel number
 
-  int _head_num; // first lit pixel of the chase
-  int _tail_num; // last lit pixel of the chase
+    int rate; // step drop rate
+    int drop_count; // number of steps until one is dropped
 
-  int _direction; // 0 = chase up 1 = chase down
+    int first_lit_pixel_position; // first lit pixel of the chase
+    int last_lit_pixel_position; // last lit pixel of the chase
 
-  int _delay; // number of steps to wait before starting chase
-  
-  public:
-    SimpleChase(
-      //Adafruit_NeoPixel &strip,
-      OctoWS2811& strip,
-      int first,
-      int last,
-      int red,
-      int green,
-      int blue,
-      float fade_factor,
-      int rate);
-    
+    int chase_direction; // 0 = chase up 1 = chase down
+
+    int start_delay; // number of steps to wait before starting chase
+
+public:
+    Synapse(
+            //Adafruit_NeoPixel &strip,
+            OctoWS2811 &strip,
+            int first,
+            int last,
+            int red,
+            int green,
+            int blue,
+            float fade_factor,
+            int rate);
+
+    running_status run_status;
+
     void ChaseLoop();
+
+    int ChaseStep();
+
     void Chase();
-    int  ChaseStep();
-    void _ChaseStep();
-    void _Set_Random_Color();
-    void _set_Random_Speed();
-    void _Set_Random_Tail();
-    void _Set_Random_Wait();
-    
-    int _Direction(int pixel_number);
-    void _setPixel(int pixel_num, int red, int green, int blue);
-    
-    int run_status;
+
+    void Set_Random_Color();
+
+    //void _set_Random_Speed();
+
+    void Set_Random_Tail();
+
+    //void _Set_Random_Wait();
+
+    int AdjustChaseDirection(int pixel_number);
+
+    void SetPixel(int pixel_num, int red, int green, int blue);
+
+    void NewSynapse();
 };
 
 #endif

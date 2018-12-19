@@ -94,14 +94,14 @@ OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 //
 //testTest test_1 = testTest(leds, 2, 4);
 
-SimpleChase strand_01 = SimpleChase(leds,0,144,255,0,0,0.8,10);
-SimpleChase strand_02 = SimpleChase(leds,144,288,0,255,0,0.8,7);
-SimpleChase strand_03 = SimpleChase(leds,288,432,0,0,255,0.8,4);
-SimpleChase strand_04 = SimpleChase(leds,432,576,255,255,255,0.8,1);
-SimpleChase strand_05 = SimpleChase(leds,576,720,255,0,0,0.8,10);
-SimpleChase strand_06 = SimpleChase(leds,720,864,0,255,0,0.8,7);
-SimpleChase strand_07 = SimpleChase(leds,864,1008,0,0,255,0.8,4);
-SimpleChase strand_08 = SimpleChase(leds,1008,1152,255,255,255,0.8,1);
+Synapse strand_01 = Synapse(leds,0,144,255,0,0,0.8,10);
+Synapse strand_02 = Synapse(leds,144,288,0,255,0,0.8,7);
+Synapse strand_03 = Synapse(leds,288,432,0,0,255,0.8,4);
+Synapse strand_04 = Synapse(leds,432,576,255,255,255,0.8,1);
+Synapse strand_05 = Synapse(leds,576,720,255,0,0,0.8,10);
+Synapse strand_06 = Synapse(leds,720,864,0,255,0,0.8,7);
+Synapse strand_07 = Synapse(leds,864,1008,0,0,255,0.8,4);
+Synapse strand_08 = Synapse(leds,1008,1152,255,255,255,0.8,1);
 //
 int status_1 = 0;
 int status_2 = 0;
@@ -136,7 +136,7 @@ void loop() {
   
   leds.show();
 
-  delayMicroseconds(10000);
+  //delayMicroseconds(10000);
   
 }
 
