@@ -5,23 +5,21 @@
 Synapse::Synapse(
         //Adafruit_NeoPixel &strip,
         OctoWS2811 &strip,
-        int _first,
-        int _last,
+        int _first_strip_position,
+        int _last_strip_position,
         int _red,
         int _green,
         int _blue,
         float _fade_factor,
-        int _rate) : _strip(strip) {
-    //_strip = strip;
+        int _rate) : _strip(strip) { // initializer required or object reference
     red = _red;
     green = _green;
     blue = _blue;
-//  fade_factor = fade_factor;
     fade_factor = _fade_factor;
     rate = _rate;
 
-    strip_start_position = _first;
-    strip_end_position = _last;
+    strip_start_position = _first_strip_position;
+    strip_end_position = _last_strip_position;
 
     first_lit_pixel_position = strip_start_position;
     last_lit_pixel_position = strip_start_position;
@@ -126,34 +124,35 @@ void Synapse::Chase() {
 
     }
 
-    int _fade_count = first_lit_pixel_position;
+    int fade_position = first_lit_pixel_position;
 
-    int _scaled_red = red;
-    int _scaled_green = green;
-    int _scaled_blue = blue;
-    int _total_color = _scaled_red + _scaled_green + _scaled_blue;
+    int scaled_red = red;
+    int scaled_green = green;
+    int scaled_blue = blue;
+    int color = (scaled_red << 16) + (scaled_green << 8) + scaled_blue;
 
     // walk back from the head and program dimmer pixels
     // until either strip_start_position is reached or brightness reaches zero
-    while (_fade_count > strip_start_position && _total_color > 0) {
-        _scaled_red = (float) _scaled_red * fade_factor;
-        _scaled_green = (float) _scaled_green * fade_factor;
-        _scaled_blue = (float) _scaled_blue * fade_factor;
-        _total_color = _scaled_red + _scaled_green + _scaled_blue;
+    while (fade_position > strip_start_position && color > 0) {
+        scaled_red = (float) scaled_red * fade_factor;
+        scaled_green = (float) scaled_green * fade_factor;
+        scaled_blue = (float) scaled_blue * fade_factor;
+        color = (scaled_red << 16) + (scaled_green << 8) + scaled_blue;
 
-        _fade_count -= 1;
-        if (_fade_count < strip_end_position)  // don't update pixels beyond the end
+        fade_position -= 1;
+        if (fade_position < strip_end_position)  // don't update pixels beyond the end
         {
-            //_strip.setPixelColor(AdjustChaseDirection(_fade_count), _strip.Color(_scaled_red, _scaled_green, _scaled_blue));
-            SetPixel(AdjustChaseDirection(_fade_count), _scaled_red, _scaled_green, _scaled_blue);
+            //_strip.setPixelColor(AdjustChaseDirection(fade_position), _strip.Color(scaled_red, scaled_green, scaled_blue));
+            SetPixel(AdjustChaseDirection(fade_position), scaled_red, scaled_green, scaled_blue);
         }
     }
-    last_lit_pixel_position = _fade_count;  // update the tail position
+    last_lit_pixel_position = fade_position;  // update the tail position
     first_lit_pixel_position += 1;  // move the head forward
 
 }
 
 void Synapse::SetPixel(int pixel_num, int red, int green, int blue) {
+
     int color = (red << 16) + (green << 8) + blue;
 
     _strip.setPixel(pixel_num, color);

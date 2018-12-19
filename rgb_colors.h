@@ -9,7 +9,7 @@
 #define YELLOW 0xFFFF00
 #define PINK   0xFF1088
 #define ORANGE 0xE05800
-#define PURPLE 0x9400D3  
+#define PURPLE 0x9400D3
 #define WHITE  0xFFFFFF
 //*/
 // 1/16th brightness 
