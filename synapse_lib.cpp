@@ -1,6 +1,7 @@
 //#include <Adafruit_NeoPixel.h>
 #include <OctoWS2811.h>
 #include "synapse_lib.h"
+#include "rgb_colors.h"
 
 Synapse::Synapse(
         //Adafruit_NeoPixel &strip,
@@ -79,12 +80,12 @@ int Synapse::ChaseStep() {
 
 void Synapse::Set_Random_Color() {
 
-    int _color_count = sizeof(synapse_palette) / (sizeof(synapse_palette[0]));
-    int _new_color = random(0, _color_count);
+    int color_count = sizeof(palette) / (sizeof(RGB));
+    RGB new_color = palette[random(0, color_count)];
 
-    red = synapse_palette[_new_color][0];
-    green = synapse_palette[_new_color][1];
-    blue = synapse_palette[_new_color][2];
+    red = new_color.red;
+    green = new_color.green;
+    blue = new_color.blue;
 }
 
 int Synapse::AdjustChaseDirection(int pixel_number) {

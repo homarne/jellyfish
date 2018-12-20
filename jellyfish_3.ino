@@ -133,7 +133,7 @@ void loop() {
   status_6 = strand_06.ChaseStep();
   status_7 = strand_07.ChaseStep();
   status_8 = strand_08.ChaseStep();
-  
+
   leds.show();
 
   //delayMicroseconds(10000);
@@ -146,21 +146,21 @@ void do_colorWipe(int time_usec)
 {
   int microsec = time_usec;
   
-  colorWipe(RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, microsec);
-  colorWipe(GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, RED, microsec);
-  colorWipe(BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, RED, GREEN, microsec);
-  colorWipe(YELLOW, PINK, ORANGE, PURPLE, WHITE, RED, GREEN, BLUE, microsec);
-  colorWipe(PINK, ORANGE, PURPLE, WHITE, RED, GREEN, BLUE, YELLOW, microsec);
-  colorWipe(ORANGE, PURPLE, WHITE, RED, GREEN, BLUE, YELLOW, PINK, microsec);
-  colorWipe(PURPLE, WHITE, RED, GREEN, BLUE, YELLOW, PINK, ORANGE, microsec);
-  colorWipe(WHITE, RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, microsec);
+//  colorWipe(RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, microsec);
+//  colorWipe(GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, RED, microsec);
+//  colorWipe(BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, RED, GREEN, microsec);
+//  colorWipe(YELLOW, PINK, ORANGE, PURPLE, WHITE, RED, GREEN, BLUE, microsec);
+//  colorWipe(PINK, ORANGE, PURPLE, WHITE, RED, GREEN, BLUE, YELLOW, microsec);
+//  colorWipe(ORANGE, PURPLE, WHITE, RED, GREEN, BLUE, YELLOW, PINK, microsec);
+//  colorWipe(PURPLE, WHITE, RED, GREEN, BLUE, YELLOW, PINK, ORANGE, microsec);
+//  colorWipe(WHITE, RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, microsec);
 }
 
 void do_colorStars(int time_usec)
 {
   int microsec = time_usec;
     
-  colorStars(position, RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, microsec);
+//  colorStars(position, RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, microsec);
   position ++;
   if (position >= 144)
   {

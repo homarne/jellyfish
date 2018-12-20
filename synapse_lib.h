@@ -5,17 +5,6 @@
 //#include <Adafruit_NeoPixel.h>
 #include <OctoWS2811.h>
 
-// color palette provides better control than selecting RBG elements randomly
-const int synapse_palette[7][3] = {
-        {255, 0,   0},    // red
-        {0,   255, 0},    // green
-        {0,   0,   255},  // blue
-        {255, 255, 0},    // ???
-        {255, 0,   255},  // ???
-        {0,   255, 255},  // ???
-        {255, 255, 255}   // white
-};
-
 enum running_status {
     STOPPED, DELAYED, RUNNING, LAST_PIXEL
 };

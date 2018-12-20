@@ -1,28 +1,18 @@
 #ifndef rgb_colors_h
 #define rgb_colors_h
 
-// full brightness
-//*
-#define RED    0xFF0000
-#define GREEN  0x00FF00
-#define BLUE   0x0000FF
-#define YELLOW 0xFFFF00
-#define PINK   0xFF1088
-#define ORANGE 0xE05800
-#define PURPLE 0x9400D3
-#define WHITE  0xFFFFFF
-//*/
-// 1/16th brightness 
-/*
-#define RED    0x160000
-#define GREEN  0x001600
-#define BLUE   0x000016
-#define YELLOW 0x101400
-#define PINK   0x120009
-#define ORANGE 0x100400
-#define PURPLE 0x13001B
-#define WHITE  0x101010
-*/
+struct RGB {int red; int green; int blue;};
+
+// must be defined as const in order to avoid multiple definition error at link
+const RGB RED {255, 0, 0};
+const RGB GREEN {0, 255, 0};
+const RGB BLUE {0, 0, 255};
+const RGB YELLOW {255, 255, 0};
+const RGB CYAN {0, 255, 255};
+const RGB MAGENTA {255, 0, 255};
+const RGB WHITE {255, 255, 255};
+
+const RGB palette[7]{RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, WHITE};
 
 #define OFF  0x000000
 
