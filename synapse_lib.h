@@ -8,6 +8,7 @@
 enum running_status {
     STOPPED, DELAYED, RUNNING, LAST_PIXEL
 };
+enum frame_status{DROP, RUN};
 
 class Synapse {
     //Adafruit_NeoPixel _strip;
@@ -29,6 +30,11 @@ class Synapse {
     int chase_direction; // 0 = chase up 1 = chase down
 
     int start_delay; // number of steps to wait before starting chase
+
+    //frame rate control
+    int step;
+    int scaled_next_drop;
+    int scaled_drop_one_frame_every;
 
 public:
     Synapse(
@@ -63,6 +69,10 @@ public:
     void SetPixel(int pixel_num, int red, int green, int blue);
 
     void NewSynapse();
+
+    void SetFrameRate(int _frame_rate);
+
+    frame_status CheckDroppedFrame();
 };
 
 #endif

@@ -17,7 +17,9 @@ Synapse::Synapse(
     green = _green;
     blue = _blue;
     fade_factor = _fade_factor;
-    rate = _rate;
+
+    //rate = _rate;
+    SetFrameRate(10 * _rate);
 
     strip_start_position = _first_strip_position;
     strip_end_position = _last_strip_position;
@@ -45,27 +47,10 @@ int Synapse::ChaseStep() {
         return 0;
     }
 
-    if (rate >= 10) {
-        //  Serial.println("rate gt.e 10");
+    frame_status status = CheckDroppedFrame();
+
+    if (status == RUN){
         Chase();
-    } else if (rate >= 0) {
-        //  Serial.println("rate gt.e 0");
-        if (drop_count > 0) {
-            Chase();
-            drop_count -= 1;
-        } else {
-            drop_count = max(rate, 1);
-        }
-    } else if (rate > -10) {
-//    Serial.println("rate gt -10");
-//    Serial.print("drop count: ");
-//    Serial.println(drop_count);
-        if (drop_count == 0) {
-            Chase();
-            drop_count = max(-rate, 10);
-        } else {
-            drop_count -= 1;
-        }
     }
 
     if (last_lit_pixel_position == strip_end_position) {
@@ -106,7 +91,8 @@ void Synapse::NewSynapse() {
     chase_direction = random(0, 2);
     //chase_direction = 0;
     Set_Random_Tail();
-    rate = random(1, 5);
+    //rate = random(1, 5);
+    SetFrameRate(random(25,75));
 }
 
 void Synapse::Chase() {
@@ -150,6 +136,46 @@ void Synapse::Chase() {
     last_lit_pixel_position = fade_position;  // update the tail position
     first_lit_pixel_position += 1;  // move the head forward
 
+}
+
+void Synapse::SetFrameRate(int _frame_rate) {
+    rate = _frame_rate;
+    if (rate >= 100) {
+        rate = 100;
+        scaled_drop_one_frame_every = 0;
+    }
+    else {
+        scaled_drop_one_frame_every = (100 * 100) / (100 - rate);
+    }
+    if (rate < 0) rate = 0;
+
+    scaled_next_drop += scaled_drop_one_frame_every;
+}
+
+frame_status Synapse::CheckDroppedFrame() {
+
+    if (rate == 100) return (frame_status) RUN;
+    if (rate == 0) return (frame_status) DROP;
+
+    step += 1;
+    if ((step > 100) || (step <= 0)) {
+        step = 1;
+        scaled_next_drop = scaled_drop_one_frame_every;
+    }
+
+    frame_status status = RUN;
+    int scaled_step = 100 * step;
+
+    //printf("step: %d  step (scaled): %d  drop every (scaled): %d  next drop (scaled): %d ", step, scaled_step, scaled_drop_one_frame_every, scaled_next_drop);
+
+    if (scaled_step >= scaled_next_drop) {
+        scaled_next_drop += scaled_drop_one_frame_every;
+        status = DROP;
+    }
+
+    //printf("status: %d\n", status);
+
+    return status;
 }
 
 void Synapse::SetPixel(int pixel_num, int red, int green, int blue) {
