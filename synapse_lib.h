@@ -4,6 +4,7 @@
 //#include "Arduino.h"
 //#include <Adafruit_NeoPixel.h>
 #include <OctoWS2811.h>
+#include "rgb_colors.h"
 
 enum running_status {
     STOPPED, DELAYED, RUNNING, LAST_PIXEL
@@ -34,9 +35,11 @@ struct synapse_settings{
 class Synapse {
     //Adafruit_NeoPixel _strip;
     OctoWS2811 &_strip;
+
     int red;
     int green;
     int blue;
+
     float fade_factor;
 
     int strip_start_position; // starting pixel number
@@ -73,9 +76,9 @@ class Synapse {
     int rate = 100; // step drop rate
 
 public:
-    synapse_settings GetSynapse();
+    synapse_settings getSynapse();
 
-    void SetSynapse(synapse_settings settings);
+    void setSynapse(synapse_settings settings);
 
 public:
     Synapse(
@@ -83,37 +86,38 @@ public:
             OctoWS2811 &strip,
             int first,
             int last,
-            int red,
-            int green,
-            int blue,
+//            int red,
+//            int green,
+//            int blue,
+            RGB color,
             float fade_factor,
             int rate);
 
     running_status run_status;
 
-    void ChaseLoop();
+    void chaseLoop();
 
-    int ChaseStep();
+    int chaseStep();
 
-    void Chase();
+    void chase();
 
-    void Set_Random_Color();
+    void setRandomColor();
 
     //void _set_Random_Speed();
 
-    void Set_Random_Tail();
+    void setRandomTail();
 
     //void _Set_Random_Wait();
 
-    int AdjustChaseDirection(int pixel_number);
+    int adjustChaseDirection(int pixel_number);
 
-    void SetPixel(int pixel_num, int red, int green, int blue);
+    void setPixel(int pixel_num, int red, int green, int blue);
 
-    void NewSynapse();
+    void newSynapse();
 
-    void SetFrameRate(int _frame_rate);
+    void setFrameRate(int _frame_rate);
 
-    frame_status CheckDroppedFrame();
+    frame_status checkDroppedFrame();
 };
 
 #endif

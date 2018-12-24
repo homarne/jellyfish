@@ -53,55 +53,14 @@ int position = 0;
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
-//class testTest
-//{
-//  OctoWS2811& _strip;
-//  int _x;
-//  int _y;
-//  
-//  public:
-//    testTest(
-//        OctoWS2811& strips,
-//        int x,
-//        int y
-//        );
-//        
-//    int test();
-//    void setPixel(uint32_t num, int color);
-//};
-//
-//testTest::testTest(
-//  OctoWS2811& strips,
-//  int x,
-//  int y
-//  ): _strip(strips)
-//  {
-//    _x = x;
-//    _y = y;
-//    //_strip = strips
-//    _strip.setPixel(10, 255);
-//  }
-//
-//int testTest::test()
-//{
-//  return _x + _y;
-//}
-//
-////void testTest::setPixel(uint32_t num, int color)
-////{
-////  _strip(num, color);
-////}
-//
-//testTest test_1 = testTest(leds, 2, 4);
-
-Synapse strand_01 = Synapse(leds,0,144,255,0,0,0.8,10);
-Synapse strand_02 = Synapse(leds,144,288,0,255,0,0.8,7);
-Synapse strand_03 = Synapse(leds,288,432,0,0,255,0.8,4);
-Synapse strand_04 = Synapse(leds,432,576,255,255,255,0.8,1);
-Synapse strand_05 = Synapse(leds,576,720,255,0,0,0.8,10);
-Synapse strand_06 = Synapse(leds,720,864,0,255,0,0.8,7);
-Synapse strand_07 = Synapse(leds,864,1008,0,0,255,0.8,4);
-Synapse strand_08 = Synapse(leds,1008,1152,255,255,255,0.8,1);
+Synapse strand_01 = Synapse(leds,0,144,RED,0.8,100);
+Synapse strand_02 = Synapse(leds,144,288,GREEN,0.8,70);
+Synapse strand_03 = Synapse(leds,288,432,BLUE,0.8,40);
+Synapse strand_04 = Synapse(leds,432,576,YELLOW,0.8,20);
+Synapse strand_05 = Synapse(leds,576,720,CYAN,0.8,30);
+Synapse strand_06 = Synapse(leds,720,864,MAGENTA,0.8,70);
+Synapse strand_07 = Synapse(leds,864,1008,RED,0.8,50);
+Synapse strand_08 = Synapse(leds,1008,1152,GREEN,0.8,60);
 //
 int status_1 = 0;
 int status_2 = 0;
@@ -125,14 +84,14 @@ void loop() {
   //do_colorWipe(microsec);
   //do_starsRbg(microsec);
   
-  status_1 = strand_01.ChaseStep();
-  status_2 = strand_02.ChaseStep();
-  status_3 = strand_03.ChaseStep();
-  status_4 = strand_04.ChaseStep();
-  status_5 = strand_05.ChaseStep();
-  status_6 = strand_06.ChaseStep();
-  status_7 = strand_07.ChaseStep();
-  status_8 = strand_08.ChaseStep();
+  status_1 = strand_01.chaseStep();
+  status_2 = strand_02.chaseStep();
+  status_3 = strand_03.chaseStep();
+  status_4 = strand_04.chaseStep();
+  status_5 = strand_05.chaseStep();
+  status_6 = strand_06.chaseStep();
+  status_7 = strand_07.chaseStep();
+  status_8 = strand_08.chaseStep();
 
   leds.show();
 
