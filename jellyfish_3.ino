@@ -45,22 +45,32 @@
 const int ledsPerStrip = 144;
 //const int ledsPerStrip = 2*144;
 
-DMAMEM int displayMemory[ledsPerStrip*6];
-int drawingMemory[ledsPerStrip*6];
+DMAMEM int displayMemory[ledsPerStrip * 6];
+int drawingMemory[ledsPerStrip * 6];
 
 const int config = WS2811_GRB | WS2811_800kHz;
 int position = 0;
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
-Synapse strand_01 = Synapse(leds,0,144,RED,0.8,100);
-Synapse strand_02 = Synapse(leds,144,288,GREEN,0.8,70);
-Synapse strand_03 = Synapse(leds,288,432,BLUE,0.8,40);
-Synapse strand_04 = Synapse(leds,432,576,YELLOW,0.8,20);
-Synapse strand_05 = Synapse(leds,576,720,CYAN,0.8,30);
-Synapse strand_06 = Synapse(leds,720,864,MAGENTA,0.8,70);
-Synapse strand_07 = Synapse(leds,864,1008,RED,0.8,50);
-Synapse strand_08 = Synapse(leds,1008,1152,GREEN,0.8,60);
+#define JELLYFISH_HEAD
+
+//tentacles
+Synapse strand_01 = Synapse(leds, 0, 144, RED, 0.8, 100);
+Synapse strand_02 = Synapse(leds, 144, 288, GREEN, 0.8, 70);
+Synapse strand_03 = Synapse(leds, 288, 432, BLUE, 0.8, 40);
+Synapse strand_04 = Synapse(leds, 432, 576, YELLOW, 0.8, 20);
+//head
+Synapse strand_05 = Synapse(leds, 576, 720, CYAN, 0.8, 30);
+Synapse strand_06 = Synapse(leds, 720, 864, MAGENTA, 0.8, 70);
+Synapse strand_07 = Synapse(leds, 864, 1008, RED, 0.8, 50);
+Synapse strand_08 = Synapse(leds, 1008, 1152, GREEN, 0.8, 60);
+
+
+
+synapse_settings ss;
+
+
 //
 int status_1 = 0;
 int status_2 = 0;
@@ -72,39 +82,54 @@ int status_7 = 0;
 int status_8 = 0;
 
 void setup() {
-  leds.begin();
-  leds.show();
+
+#ifdef JELLYFISH_HEAD
+    strand_05.random_tail_factor_enable = false;
+    strand_05.random_start_delay_enable = false;
+    strand_05.tail_factor=0.99;
+    strand_06.random_tail_factor_enable = false;
+    strand_06.random_start_delay_enable = false;
+    strand_06.tail_factor=0.99;
+    strand_07.random_tail_factor_enable = false;
+    strand_07.random_start_delay_enable = false;
+    strand_07.tail_factor=0.99;
+    strand_08.random_tail_factor_enable = false;
+    strand_08.random_start_delay_enable = false;
+    strand_08.tail_factor=0.99;
+#endif
+
+    leds.begin();
+    leds.show();
 }
 
 void loop() {
-  int microsec = 1000 / leds.numPixels();  // change them all in 2 seconds
+    int microsec = 1000 / leds.numPixels();  // change them all in 2 seconds
 
-  // test routines
-  //do_colorStars(microsec);
-  //do_colorWipe(microsec);
-  //do_starsRbg(microsec);
-  
-  status_1 = strand_01.chaseStep();
-  status_2 = strand_02.chaseStep();
-  status_3 = strand_03.chaseStep();
-  status_4 = strand_04.chaseStep();
-  status_5 = strand_05.chaseStep();
-  status_6 = strand_06.chaseStep();
-  status_7 = strand_07.chaseStep();
-  status_8 = strand_08.chaseStep();
+    // test routines
+    //do_colorStars(microsec);
+    //do_colorWipe(microsec);
+    //do_starsRbg(microsec);
 
-  leds.show();
+    status_1 = strand_01.chaseStep();
+    status_2 = strand_02.chaseStep();
+    status_3 = strand_03.chaseStep();
+    status_4 = strand_04.chaseStep();
+    status_5 = strand_05.chaseStep();
+    status_6 = strand_06.chaseStep();
+    status_7 = strand_07.chaseStep();
+    status_8 = strand_08.chaseStep();
 
-  //delayMicroseconds(10000);
-  
+    leds.show();
+
+    //delayMicroseconds(10000);
+
 }
 
 //---------- Test Code ---------------
 
-void do_colorWipe(int time_usec)
-{
-  int microsec = time_usec;
-  
+void do_colorWipe(int time_usec) {
+    int microsec = time_usec;
+
 //  colorWipe(RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, microsec);
 //  colorWipe(GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, RED, microsec);
 //  colorWipe(BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, RED, GREEN, microsec);
@@ -115,123 +140,118 @@ void do_colorWipe(int time_usec)
 //  colorWipe(WHITE, RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, microsec);
 }
 
-void do_colorStars(int time_usec)
-{
-  int microsec = time_usec;
-    
+void do_colorStars(int time_usec) {
+    int microsec = time_usec;
+
 //  colorStars(position, RED, GREEN, BLUE, YELLOW, PINK, ORANGE, PURPLE, WHITE, microsec);
-  position ++;
-  if (position >= 144)
-  {
-    position = 0;
-  }
-}
-  
-void do_starsRbg(int time_usec)
-{
-  int microsec = time_usec;
-  
-  starsRbg(position, 0xff, 0x00, 0x00);
-  position = ((position >= 144) ? 0 : position ++);
-  starsRbg(position, 0x00, 0xff, 0x00);
-  position = ((position >= 144) ? 0 : position ++);
-  starsRbg(position, 0x00, 0x00, 0xff);
-  position = ((position >= 144) ? 0 : position ++);
-  starsRbg(position, 0xff, 0xff, 0x00);
-  position = ((position >= 144) ? 0 : position ++);
-  starsRbg(position, 0xff, 0x00, 0xff);
-  position = ((position >= 144) ? 0 : position ++);
-  starsRbg(position, 0x00, 0xff, 0xff);
-  position = ((position >= 144) ? 0 : position ++);
-  starsRbg(position, 0xff, 0xff, 0xff);
-  position = ((position >= 144) ? 0 : position ++);
-
-}
-  
-void colorWipe(int color0, int color1, int color2, int color3, int color4, int color5, int color6, int color7, int wait)
-{
-  //for (int i=0; i < leds.numPixels(); i++) {
-  for (int i=0; i < 144; i++) {
-    leds.setPixel(i+0*144, color0);
-    leds.setPixel(i+1*144, color1);
-    leds.setPixel(i+2*144, color2);
-    leds.setPixel(i+3*144, color3);
-    leds.setPixel(i+4*144, color4);
-    leds.setPixel(i+5*144, color5);
-    leds.setPixel(i+6*144, color6);
-    leds.setPixel(i+7*144, color7);
-    leds.show();
-    //delayMicroseconds(20000);
-    delayMicroseconds(00000);
-  }
-}
-
-void colorStars(int star_position, int color0, int color1, int color2, int color3, int color4, int color5, int color6, int color7, int wait)
-{
-  int i = 0;
-  //for (int i=0; i < leds.numPixels(); i++) {
-  for (int j=0; j < 144; j++) {
-    i=j;
-    leds.setPixel(i+0*144, color0);
-    leds.setPixel(i+1*144, color1);
-    leds.setPixel(i+2*144, color2);
-    leds.setPixel(i+3*144, color3);
-    leds.setPixel(i+4*144, color4);
-    leds.setPixel(i+5*144, color5);
-    leds.setPixel(i+6*144, color6);
-    leds.setPixel(i+7*144, color7);
-
-    if (i > 0)
-    {
-      i=j- 1;
-      leds.setPixel(i+0*144, OFF);
-      leds.setPixel(i+1*144, OFF);
-      leds.setPixel(i+2*144, OFF);
-      leds.setPixel(i+3*144, OFF);
-      leds.setPixel(i+4*144, OFF);
-      leds.setPixel(i+5*144, OFF);
-      leds.setPixel(i+6*144, OFF);
-      leds.setPixel(i+7*144, OFF); 
+    position++;
+    if (position >= 144) {
+        position = 0;
     }
-    
-    leds.show();
-    //delayMicroseconds(40000);
-    delayMicroseconds(10000);
-  }
 }
 
-void starsRbg(int star_position, int red, int green, int blue)
-{
-  int color = (red<<16) + (green<<8) + blue;
-  
-  int i = 0;
-  //for (int i=0; i < leds.numPixels(); i++) {
-  for (int j=0; j < 144; j++) {
-    i=j;
-    leds.setPixel(i+0*144, color);
-    leds.setPixel(i+1*144, color);
-    leds.setPixel(i+2*144, color);
-    leds.setPixel(i+3*144, color);
-    leds.setPixel(i+4*144, color);
-    leds.setPixel(i+5*144, color);
-    leds.setPixel(i+6*144, color);
-    leds.setPixel(i+7*144, color);
+void do_starsRbg(int time_usec) {
+    int microsec = time_usec;
 
-    if (i > 0)
-    {
-      i=j- 1;
-      leds.setPixel(i+0*144, OFF);
-      leds.setPixel(i+1*144, OFF);
-      leds.setPixel(i+2*144, OFF);
-      leds.setPixel(i+3*144, OFF);
-      leds.setPixel(i+4*144, OFF);
-      leds.setPixel(i+5*144, OFF);
-      leds.setPixel(i+6*144, OFF);
-      leds.setPixel(i+7*144, OFF); 
+    starsRbg(position, 0xff, 0x00, 0x00);
+    position = ((position >= 144) ? 0 : position++);
+    starsRbg(position, 0x00, 0xff, 0x00);
+    position = ((position >= 144) ? 0 : position++);
+    starsRbg(position, 0x00, 0x00, 0xff);
+    position = ((position >= 144) ? 0 : position++);
+    starsRbg(position, 0xff, 0xff, 0x00);
+    position = ((position >= 144) ? 0 : position++);
+    starsRbg(position, 0xff, 0x00, 0xff);
+    position = ((position >= 144) ? 0 : position++);
+    starsRbg(position, 0x00, 0xff, 0xff);
+    position = ((position >= 144) ? 0 : position++);
+    starsRbg(position, 0xff, 0xff, 0xff);
+    position = ((position >= 144) ? 0 : position++);
+
+}
+
+void colorWipe(int color0, int color1, int color2, int color3, int color4,
+               int color5, int color6, int color7, int wait) {
+    //for (int i=0; i < leds.numPixels(); i++) {
+    for (int i = 0; i < 144; i++) {
+        leds.setPixel(i + 0 * 144, color0);
+        leds.setPixel(i + 1 * 144, color1);
+        leds.setPixel(i + 2 * 144, color2);
+        leds.setPixel(i + 3 * 144, color3);
+        leds.setPixel(i + 4 * 144, color4);
+        leds.setPixel(i + 5 * 144, color5);
+        leds.setPixel(i + 6 * 144, color6);
+        leds.setPixel(i + 7 * 144, color7);
+        leds.show();
+        //delayMicroseconds(20000);
+        delayMicroseconds(00000);
     }
-    
-    leds.show();
-    //delayMicroseconds(40000);
-    delayMicroseconds(10000);
-  }
+}
+
+void
+colorStars(int star_position, int color0, int color1, int color2, int color3,
+           int color4, int color5, int color6, int color7, int wait) {
+    int i = 0;
+    //for (int i=0; i < leds.numPixels(); i++) {
+    for (int j = 0; j < 144; j++) {
+        i = j;
+        leds.setPixel(i + 0 * 144, color0);
+        leds.setPixel(i + 1 * 144, color1);
+        leds.setPixel(i + 2 * 144, color2);
+        leds.setPixel(i + 3 * 144, color3);
+        leds.setPixel(i + 4 * 144, color4);
+        leds.setPixel(i + 5 * 144, color5);
+        leds.setPixel(i + 6 * 144, color6);
+        leds.setPixel(i + 7 * 144, color7);
+
+        if (i > 0) {
+            i = j - 1;
+            leds.setPixel(i + 0 * 144, OFF);
+            leds.setPixel(i + 1 * 144, OFF);
+            leds.setPixel(i + 2 * 144, OFF);
+            leds.setPixel(i + 3 * 144, OFF);
+            leds.setPixel(i + 4 * 144, OFF);
+            leds.setPixel(i + 5 * 144, OFF);
+            leds.setPixel(i + 6 * 144, OFF);
+            leds.setPixel(i + 7 * 144, OFF);
+        }
+
+        leds.show();
+        //delayMicroseconds(40000);
+        delayMicroseconds(10000);
+    }
+}
+
+void starsRbg(int star_position, int red, int green, int blue) {
+    int color = (red << 16) + (green << 8) + blue;
+
+    int i = 0;
+    //for (int i=0; i < leds.numPixels(); i++) {
+    for (int j = 0; j < 144; j++) {
+        i = j;
+        leds.setPixel(i + 0 * 144, color);
+        leds.setPixel(i + 1 * 144, color);
+        leds.setPixel(i + 2 * 144, color);
+        leds.setPixel(i + 3 * 144, color);
+        leds.setPixel(i + 4 * 144, color);
+        leds.setPixel(i + 5 * 144, color);
+        leds.setPixel(i + 6 * 144, color);
+        leds.setPixel(i + 7 * 144, color);
+
+        if (i > 0) {
+            i = j - 1;
+            leds.setPixel(i + 0 * 144, OFF);
+            leds.setPixel(i + 1 * 144, OFF);
+            leds.setPixel(i + 2 * 144, OFF);
+            leds.setPixel(i + 3 * 144, OFF);
+            leds.setPixel(i + 4 * 144, OFF);
+            leds.setPixel(i + 5 * 144, OFF);
+            leds.setPixel(i + 6 * 144, OFF);
+            leds.setPixel(i + 7 * 144, OFF);
+        }
+
+        leds.show();
+        //delayMicroseconds(40000);
+        delayMicroseconds(10000);
+    }
 }

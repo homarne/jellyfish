@@ -12,10 +12,9 @@ Synapse::Synapse(
         float _fade_factor,
         int _rate) : _strip(strip) { // initializer for object reference
 
-    red = _color.red;
-    green = _color.green;
-    blue = _color.blue;
-    fade_factor = _fade_factor;
+    setColor(_color);
+
+    tail_factor = _fade_factor;
 
     setFrameRate(_rate);
 
@@ -28,7 +27,6 @@ Synapse::Synapse(
     start_delay = 0;
 }
 
-
 void Synapse::chaseLoop() {
     while (true) {
         chaseStep();
@@ -40,11 +38,12 @@ void Synapse::chaseLoop() {
 void Synapse::setRandomColor() {
 
     int color_count = sizeof(palette) / (sizeof(RGB));
-    RGB new_color = palette[random(0, color_count)];
-
-    red = new_color.red;
-    green = new_color.green;
-    blue = new_color.blue;
+//    RGB new_color = palette[random(0, color_count)];
+//
+//    red = new_color.red;
+//    green = new_color.green;
+//    blue = new_color.blue;
+    setColor(palette[random(0, color_count)]);
 }
 
 int Synapse::adjustChaseDirection(int pixel_number) {
@@ -57,7 +56,7 @@ int Synapse::adjustChaseDirection(int pixel_number) {
 
 void Synapse::setRandomTail() {
     int tail_factor = random(tail_factor_min, tail_factor_max);
-    fade_factor = (float) tail_factor / 100;
+    tail_factor = (float) tail_factor / 100;
 }
 
 void Synapse::newSynapse() {
@@ -112,9 +111,9 @@ void Synapse::chase() {
     // walk back from the first lit pixel and set dimmer pixels
     // until either strip_start_position is reached or brightness reaches zero
     while (fade_position > strip_start_position && color > 0) {
-        scaled_red = (float) scaled_red * fade_factor;
-        scaled_green = (float) scaled_green * fade_factor;
-        scaled_blue = (float) scaled_blue * fade_factor;
+        scaled_red = (float) scaled_red * tail_factor;
+        scaled_green = (float) scaled_green * tail_factor;
+        scaled_blue = (float) scaled_blue * tail_factor;
         color = scaled_red + scaled_green + scaled_blue;
 
         fade_position -= 1;
@@ -168,6 +167,13 @@ frame_status Synapse::checkDroppedFrame() {
     return status;
 }
 
+void Synapse::setColor(RGB _color) {
+    color = _color;
+    red = color.red;
+    green = color.green;
+    blue = color.blue;
+}
+
 void Synapse::setPixel(int pixel_num, int red, int green, int blue) {
 
     int color = (red << 16) + (green << 8) + blue;
@@ -176,53 +182,6 @@ void Synapse::setPixel(int pixel_num, int red, int green, int blue) {
 
 }
 
-synapse_settings Synapse::getSynapse() {
 
-    synapse_settings settings;
-
-    settings.random_start_delay_enable = random_start_delay_enable;
-    settings.start_delay_min = start_delay_min;
-    settings.start_delay_max = start_delay_max;
-    settings.start_delay = start_delay;
-
-    settings.random_color_enable = random_color_enable;
-
-    settings.random_chase_direction_enable = random_chase_direction_enable;
-    settings.chase_direction = chase_direction;
-
-    settings.random_tail_factor_enable = random_tail_factor_enable;
-    settings.tail_factor_max = tail_factor_max;
-    settings.tail_factor_min = tail_factor_min;
-
-    settings.random_rate_enable = random_rate_enable;
-    settings.rate_max = rate_max;
-    settings.rate_min = rate_min;
-    settings.rate = rate;
-
-    return settings;
-}
-
-void Synapse::setSynapse(synapse_settings settings) {
-    random_start_delay_enable = settings.random_start_delay_enable;
-    start_delay_min = settings.start_delay_min;
-    start_delay_max = settings.start_delay_max;
-    start_delay = settings.start_delay;
-
-    random_color_enable = settings.random_color_enable;
-
-    random_chase_direction_enable = settings.random_chase_direction_enable;
-    chase_direction = settings.chase_direction;
-
-    random_tail_factor_enable = settings.random_tail_factor_enable;
-    tail_factor_max = settings.tail_factor_max;
-    tail_factor_min = settings.tail_factor_min;
-
-    random_rate_enable = settings.random_rate_enable;
-    rate_max = settings.rate_max;
-    rate_min = settings.rate_min;
-    rate = settings.rate;
-
-    setFrameRate(rate);
-}
 
 

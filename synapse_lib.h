@@ -40,8 +40,6 @@ class Synapse {
     int green;
     int blue;
 
-    float fade_factor;
-
     int strip_start_position; // starting pixel number
     int strip_end_position; // ending pixel number
 
@@ -55,7 +53,10 @@ class Synapse {
     int scaled_next_drop;
     int scaled_drop_one_frame_every;
 
-    // new synapse control
+    RGB color = RED;
+
+public:
+
     bool random_start_delay_enable = true;
     int start_delay_min;
     int start_delay_max;
@@ -69,18 +70,13 @@ class Synapse {
     bool random_tail_factor_enable = true;
     int tail_factor_max = 99;
     int tail_factor_min = 85;
+    float tail_factor;
 
     bool random_rate_enable = true;
     int rate_max = 80;
     int rate_min = 30;
     int rate = 100; // step drop rate
 
-public:
-    synapse_settings getSynapse();
-
-    void setSynapse(synapse_settings settings);
-
-public:
     Synapse(
             //Adafruit_NeoPixel &strip,
             OctoWS2811 &strip,
@@ -116,6 +112,8 @@ public:
     void newSynapse();
 
     void setFrameRate(int _frame_rate);
+
+    void setColor(RGB _color);
 
     frame_status checkDroppedFrame();
 };
