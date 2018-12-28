@@ -9,13 +9,15 @@ Strand::Strand(OctoWS2811 &_strip,
                int length,
                RGB _color,
                int _rate,
-               chase_direction _direction) : strip(_strip){
+               chase_direction _direction,
+               int _chase_length) : strip(_strip){
     strip_start_position = first;
     strip_end_position = strip_start_position + length;
     position = first;
     color = _color;
     setFrameRate(_rate);
     direction = _direction;
+    chase_length = _chase_length;
 }
 
 running_status Strand::chase_step() {
@@ -31,15 +33,34 @@ void Strand::chase(){
         position = strip_start_position;
     }
 
+    int off_position = position - chase_length;
+    if (off_position < strip_start_position){
+        off_position = strip_end_position - (strip_start_position - off_position);
+    }
+    
     int adjusted_position = adjustChaseDirection(position);
     setPixel(adjusted_position, color);
 
-    adjusted_position = adjustChaseDirection(last_position);
+    adjusted_position = adjustChaseDirection(off_position);
     setPixel(adjusted_position, OFF);
 
-    last_position = position;
     position ++;
 }
+
+//void Strand::chase(){
+//    if (position >= strip_end_position){
+//        position = strip_start_position;
+//    }
+//
+//    int adjusted_position = adjustChaseDirection(position);
+//    setPixel(adjusted_position, color);
+//
+//    adjusted_position = adjustChaseDirection(last_position);
+//    setPixel(adjusted_position, OFF);
+//
+//    last_position = position;
+//    position ++;
+//}
 
 int Strand::adjustChaseDirection(int pixel_number) {
     if (direction == FORWARD) {

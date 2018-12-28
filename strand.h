@@ -25,7 +25,8 @@ public:
     RGB color;
     chase_direction direction;
 
-    Strand(OctoWS2811 &_strip, int first, int _length, RGB color, int rate, chase_direction direction);
+    Strand(OctoWS2811 &_strip, int first, int _length, RGB color, int rate,
+           chase_direction direction, int chase_length);
     running_status chase_step();
     void chase();
     int adjustChaseDirection(int position);
@@ -34,4 +35,5 @@ public:
     frame_status checkDroppedFrame();
 
 
+    int chase_length;
 };

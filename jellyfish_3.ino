@@ -84,24 +84,24 @@ Synapse strand_08 = Synapse(leds, 1008, 1152, GREEN, 0.8, 60);
 #if MODE==MONOLITH
 
 // upper monolith is 110 LEDs
-Strand upper_1 = Strand(leds, 0, 110, GREEN, 100, FORWARD);
-Strand upper_2 = Strand(leds, 144+34, 110, GREEN, 100, REVERSE);
-Strand upper_3 = Strand(leds, 288, 110, GREEN, 100, FORWARD);
-Strand upper_4 = Strand(leds, 432+34, 110, GREEN, 100, REVERSE);
-Strand upper_5 = Strand(leds, 576, 110, GREEN, 100, FORWARD);
-Strand upper_6 = Strand(leds, 720+34, 110, GREEN, 100, REVERSE);
-Strand upper_7 = Strand(leds, 864, 110, GREEN, 100, FORWARD);
-Strand upper_8 = Strand(leds, 1008+34, 110, GREEN, 100, REVERSE);
+Strand upper_1 = Strand(leds, 0, 110, GREEN, 100, FORWARD, 5);
+Strand upper_2 = Strand(leds, 144+34, 110, GREEN, 100, REVERSE, 5);
+Strand upper_3 = Strand(leds, 288, 110, GREEN, 100, FORWARD, 5);
+Strand upper_4 = Strand(leds, 432+34, 110, GREEN, 100, REVERSE, 5);
+Strand upper_5 = Strand(leds, 576, 110, GREEN, 100, FORWARD, 5);
+Strand upper_6 = Strand(leds, 720+34, 110, GREEN, 100, REVERSE, 5);
+Strand upper_7 = Strand(leds, 864, 110, GREEN, 100, FORWARD, 5);
+Strand upper_8 = Strand(leds, 1008+34, 110, GREEN, 100, REVERSE, 5);
 
 // Lower monolith is 34 LEDs
-Strand lower_1 = Strand(leds, 0+110, 34, BLUE, 33, REVERSE);
-Strand lower_2 = Strand(leds, 144, 34, BLUE, 33, FORWARD);
-Strand lower_3 = Strand(leds, 288+110, 34, BLUE, 33, REVERSE);
-Strand lower_4 = Strand(leds, 432, 34, BLUE, 33, FORWARD);
-Strand lower_5 = Strand(leds, 576+110, 34, BLUE, 33, REVERSE);
-Strand lower_6 = Strand(leds, 720, 34, BLUE, 33, FORWARD);
-Strand lower_7 = Strand(leds, 864+110, 34, BLUE, 33, REVERSE);
-Strand lower_8 = Strand(leds, 1008, 34, BLUE, 33, FORWARD);
+Strand lower_1 = Strand(leds, 0+110, 34, BLUE, 31, REVERSE, 5);
+Strand lower_2 = Strand(leds, 144, 34, BLUE, 31, FORWARD, 5);
+Strand lower_3 = Strand(leds, 288+110, 34, BLUE, 31, REVERSE, 5);
+Strand lower_4 = Strand(leds, 432, 34, BLUE, 31, FORWARD, 5);
+Strand lower_5 = Strand(leds, 576+110, 34, BLUE, 31, REVERSE, 5);
+Strand lower_6 = Strand(leds, 720, 34, BLUE, 31, FORWARD, 5);
+Strand lower_7 = Strand(leds, 864+110, 34, BLUE, 31, REVERSE, 5);
+Strand lower_8 = Strand(leds, 1008, 34, BLUE, 31, FORWARD, 5);
 #endif
 //
 int status_1 = 0;
@@ -186,71 +186,6 @@ void loop() {
 #endif
 
 }
-
-//---------- Monolith ----------------
-
-
-
-
-
-//-------------------------------------------------
-
-void baseChase(int microsecond) {
-    monoChase(position, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, microsecond);
-    position++;
-    if (position >= 144) {
-        position = 0;
-    }
-}
-
-void monoChase(int star_position, RGB color0, RGB color1, RGB color2, RGB color3,
-           RGB color4, RGB color5, RGB color6, RGB color7, int wait) {
-    int i = 0;
-    //for (int i=0; i < leds.numPixels(); i++) {
-    for (int j = 0; j < 10; j++) {
-        setRing(j, 32, WHITE);
-
-        leds.show();
-        //delayMicroseconds(40000);
-        delayMicroseconds(50000);
-    }
-}
-
-void setRing(int position, int length, RGB color){
-    int i = position;
-    //setPixel(0 * 144 + i, color);
-    setPixel(1 * 144 + 143-i, color);
-
-    //setPixel(2 * 144 + i, color);
-    setPixel(3 * 144 + 143-i, color);
-
-    //setPixel(4 * 144 + i, color);
-    setPixel(5 * 144 + 143-i, color);
-
-    //setPixel(6 * 144 + i, color);
-    setPixel(7 * 144 + 143-i, color);
-
-    if (i > 0) {
-        i = position - 1;
-    }
-    else {
-        i = length+1;
-    }
-
-    //setPixel(0 * 144 + i, OFF);
-    setPixel(1 * 144 + 143-i, OFF);
-
-    //setPixel(2 * 144 + i, OFF);
-    setPixel(3 * 144 + 143-i, OFF);
-
-    //setPixel(4 * 144 + i, OFF);
-    setPixel(5 * 144 + 143-i, OFF);
-
-    //setPixel(6 * 144 + i, OFF);
-    setPixel(7 * 144 + 143-i, OFF);
-
-}
-
 
 //---------- Test Code ---------------
 
