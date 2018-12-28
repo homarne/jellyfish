@@ -12,8 +12,10 @@ const RGB CYAN {0, 255, 255};
 const RGB MAGENTA {255, 0, 255};
 const RGB WHITE {255, 255, 255};
 
+const RGB OFF {0, 0, 0};
+
 const RGB palette[7]{RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, WHITE};
 
-#define OFF  0x000000
+//#define OFF  0x000000
 
 #endif

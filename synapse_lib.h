@@ -75,7 +75,7 @@ public:
     bool random_rate_enable = true;
     int rate_max = 80;
     int rate_min = 30;
-    int rate = 100; // step drop rate
+    int rate = 100; // position drop rate
 
     Synapse(
             //Adafruit_NeoPixel &strip,
