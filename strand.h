@@ -12,6 +12,12 @@ class Strand{
     int position;
     int last_position;
 
+    // frame rate control
+    int rate;
+    int step;
+    int scaled_next_drop;
+    int scaled_drop_one_frame_every;
+
     int rgbToInt(RGB color);
     void setPixel(int position, RGB color);
 
@@ -19,10 +25,13 @@ public:
     RGB color;
     chase_direction direction;
 
-    Strand(OctoWS2811 &_strip, int first, int _length, RGB color, chase_direction direction);
+    Strand(OctoWS2811 &_strip, int first, int _length, RGB color, int rate, chase_direction direction);
     running_status chase_step();
     void chase();
     int adjustChaseDirection(int position);
+    //void setColor(RGB _color);
+    void setFrameRate(int _frame_rate);
+    frame_status checkDroppedFrame();
 
 
 };

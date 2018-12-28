@@ -84,24 +84,24 @@ Synapse strand_08 = Synapse(leds, 1008, 1152, GREEN, 0.8, 60);
 #if MODE==MONOLITH
 
 // upper monolith is 110 LEDs
-Strand upper_1 = Strand(leds, 0, 110, GREEN, FORWARD);
-Strand upper_2 = Strand(leds, 144+34, 110, GREEN, REVERSE);
-Strand upper_3 = Strand(leds, 288, 110, GREEN, FORWARD);
-Strand upper_4 = Strand(leds, 432+34, 110, GREEN, REVERSE);
-Strand upper_5 = Strand(leds, 576, 110, GREEN, FORWARD);
-Strand upper_6 = Strand(leds, 720+34, 110, GREEN, REVERSE);
-Strand upper_7 = Strand(leds, 864, 110, GREEN, FORWARD);
-Strand upper_8 = Strand(leds, 1008+34, 110, GREEN, REVERSE);
+Strand upper_1 = Strand(leds, 0, 110, GREEN, 100, FORWARD);
+Strand upper_2 = Strand(leds, 144+34, 110, GREEN, 100, REVERSE);
+Strand upper_3 = Strand(leds, 288, 110, GREEN, 100, FORWARD);
+Strand upper_4 = Strand(leds, 432+34, 110, GREEN, 100, REVERSE);
+Strand upper_5 = Strand(leds, 576, 110, GREEN, 100, FORWARD);
+Strand upper_6 = Strand(leds, 720+34, 110, GREEN, 100, REVERSE);
+Strand upper_7 = Strand(leds, 864, 110, GREEN, 100, FORWARD);
+Strand upper_8 = Strand(leds, 1008+34, 110, GREEN, 100, REVERSE);
 
 // Lower monolith is 34 LEDs
-Strand lower_1 = Strand(leds, 0+110, 34, BLUE, REVERSE);
-Strand lower_2 = Strand(leds, 144, 34, BLUE, FORWARD);
-Strand lower_3 = Strand(leds, 288+110, 34, BLUE, REVERSE);
-Strand lower_4 = Strand(leds, 432, 34, BLUE, FORWARD);
-Strand lower_5 = Strand(leds, 576+110, 34, BLUE, REVERSE);
-Strand lower_6 = Strand(leds, 720, 34, BLUE, FORWARD);
-Strand lower_7 = Strand(leds, 864+110, 34, BLUE, REVERSE);
-Strand lower_8 = Strand(leds, 1008, 34, BLUE, FORWARD);
+Strand lower_1 = Strand(leds, 0+110, 34, BLUE, 33, REVERSE);
+Strand lower_2 = Strand(leds, 144, 34, BLUE, 33, FORWARD);
+Strand lower_3 = Strand(leds, 288+110, 34, BLUE, 33, REVERSE);
+Strand lower_4 = Strand(leds, 432, 34, BLUE, 33, FORWARD);
+Strand lower_5 = Strand(leds, 576+110, 34, BLUE, 33, REVERSE);
+Strand lower_6 = Strand(leds, 720, 34, BLUE, 33, FORWARD);
+Strand lower_7 = Strand(leds, 864+110, 34, BLUE, 33, REVERSE);
+Strand lower_8 = Strand(leds, 1008, 34, BLUE, 33, FORWARD);
 #endif
 //
 int status_1 = 0;

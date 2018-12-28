@@ -8,15 +8,20 @@ Strand::Strand(OctoWS2811 &_strip,
                int first,
                int length,
                RGB _color,
+               int _rate,
                chase_direction _direction) : strip(_strip){
     strip_start_position = first;
     strip_end_position = strip_start_position + length;
     position = first;
     color = _color;
+    setFrameRate(_rate);
     direction = _direction;
 }
 
 running_status Strand::chase_step() {
+    if (checkDroppedFrame() == DROP) {
+        return (running_status) RUNNING;
+    }
     chase();
     return RUNNING;
 }
@@ -51,4 +56,41 @@ int Strand::rgbToInt(RGB _color) {
 
 void Strand::setPixel(int position, RGB color){
     strip.setPixel(position, rgbToInt(color));
+}
+
+void Strand::setFrameRate(int _frame_rate) {
+    rate = _frame_rate;
+
+    if (rate >= 100) {
+        rate = 100;
+        scaled_drop_one_frame_every = 0;
+    } else {
+        scaled_drop_one_frame_every = (100 * 100) / (100 - rate);
+    }
+
+    if (rate < 0) rate = 0;
+
+    scaled_next_drop += scaled_drop_one_frame_every;
+}
+
+frame_status Strand::checkDroppedFrame() {
+
+    if (rate == 100) return (frame_status) RUN;
+    if (rate == 0) return (frame_status) DROP;
+
+    step += 1;
+    if ((step > 100) || (step <= 0)) {
+        step = 1;
+        scaled_next_drop = scaled_drop_one_frame_every;
+    }
+
+    frame_status status = RUN;
+    int scaled_step = 100 * step;
+
+    if (scaled_step >= scaled_next_drop) {
+        scaled_next_drop += scaled_drop_one_frame_every;
+        status = DROP;
+    }
+
+    return status;
 }
