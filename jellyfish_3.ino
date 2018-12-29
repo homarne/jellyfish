@@ -105,6 +105,7 @@ Strand lower_8 = Strand(leds, 1008, 34, BLUE, 31, FORWARD, 5);
 
 int strand_index = 0;
 running_status strand_status = STOPPED;
+Strand * strands[8];
 
 #endif
 //
@@ -136,7 +137,8 @@ void setup() {
 #endif
 
 #if MODE==MONOLITH
-
+    init_strand_array();
+    strands[0]->color = RED;
 #endif
 
     leds.begin();
@@ -187,14 +189,7 @@ void loop() {
     strand_status = upper_8.chase_step();
 
     if (strand_status == LAST_PIXEL ){
-        set_strand_colors(strand_index);
-        //strand_index++;// =
-        if ((strand_index >= 7) || (strand_index < 0)){
-            strand_index = 0;
-        }
-        else {
-            strand_index++;
-        }
+        rotate_strand_colors();
     }
 
     // 1) chase white up
@@ -214,28 +209,35 @@ void loop() {
 
 }
 //---------- monolith ----------------
+void init_strand_array(){
+    strands[0] = &upper_1;
+    strands[1] = &upper_2;
+    strands[2] = &upper_3;
+    strands[3] = &upper_4;
+    strands[4] = &upper_5;
+    strands[5] = &upper_6;
+    strands[6] = &upper_7;
+    strands[7] = &upper_8;
+}
 
+void rotate_strand_colors(){
+    set_strand_colors(strand_index);
+    //strand_index++;// =
+    if ((strand_index >= 7) || (strand_index < 0)){
+        strand_index = 0;
+    }
+    else {
+        strand_index++;
+    }
+}
 void set_strand_colors(int offset){
-//    if (strand_index >= 8){
-//        strand_index = 0;
-//    }
+
     RGB color;
-    color = palette[(0+offset) % 6];
-    upper_1.color = color;
-    color = palette[(1+offset) % 6];
-    upper_2.color = color;
-    color = palette[(2+offset) % 6];
-    upper_3.color = color;
-    color = palette[(3+offset) % 6];
-    upper_4.color = color;
-    color = palette[(4+offset) % 6];
-    upper_5.color = color;
-    color = palette[(5+offset) % 6];
-    upper_6.color = color;
-    color = palette[(6+offset) % 6];
-    upper_7.color = color;
-    color = palette[(7+offset) % 6];
-    upper_8.color = color;
+
+    for (int i=0; i<8; i++){
+        color = palette[(i+offset) % 6];
+        strands[i]->color = color;
+    }
 
 
 }
