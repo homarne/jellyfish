@@ -102,6 +102,10 @@ Strand lower_5 = Strand(leds, 576+110, 34, BLUE, 31, REVERSE, 5);
 Strand lower_6 = Strand(leds, 720, 34, BLUE, 31, FORWARD, 5);
 Strand lower_7 = Strand(leds, 864+110, 34, BLUE, 31, REVERSE, 5);
 Strand lower_8 = Strand(leds, 1008, 34, BLUE, 31, FORWARD, 5);
+
+int strand_index = 0;
+running_status strand_status = STOPPED;
+
 #endif
 //
 int status_1 = 0;
@@ -129,6 +133,10 @@ void setup() {
     strand_08.random_tail_factor_enable = false;
     strand_08.random_start_delay_enable = false;
     strand_08.tail_factor=0.99;
+#endif
+
+#if MODE==MONOLITH
+
 #endif
 
     leds.begin();
@@ -163,6 +171,12 @@ void loop() {
 #if MODE==MONOLITH
     //int microseconds = 1000 / leds.numPixels();  // change them all in 2 seconds
     //baseChase(microseconds);
+    // 1) wipe colors
+    // 2) wipe single color
+    // 3)  rotate colors
+    // 4) rotate single color
+
+
     upper_1.chase_step();
     upper_2.chase_step();
     upper_3.chase_step();
@@ -170,8 +184,21 @@ void loop() {
     upper_5.chase_step();
     upper_6.chase_step();
     upper_7.chase_step();
-    upper_8.chase_step();
+    strand_status = upper_8.chase_step();
 
+    if (strand_status == LAST_PIXEL ){
+        set_strand_colors(strand_index);
+        //strand_index++;// =
+        if ((strand_index >= 7) || (strand_index < 0)){
+            strand_index = 0;
+        }
+        else {
+            strand_index++;
+        }
+    }
+
+    // 1) chase white up
+    // 2) chase white down
     lower_1.chase_step();
     lower_2.chase_step();
     lower_3.chase_step();
@@ -186,7 +213,32 @@ void loop() {
 #endif
 
 }
+//---------- monolith ----------------
 
+void set_strand_colors(int offset){
+//    if (strand_index >= 8){
+//        strand_index = 0;
+//    }
+    RGB color;
+    color = palette[(0+offset) % 6];
+    upper_1.color = color;
+    color = palette[(1+offset) % 6];
+    upper_2.color = color;
+    color = palette[(2+offset) % 6];
+    upper_3.color = color;
+    color = palette[(3+offset) % 6];
+    upper_4.color = color;
+    color = palette[(4+offset) % 6];
+    upper_5.color = color;
+    color = palette[(5+offset) % 6];
+    upper_6.color = color;
+    color = palette[(6+offset) % 6];
+    upper_7.color = color;
+    color = palette[(7+offset) % 6];
+    upper_8.color = color;
+
+
+}
 //---------- Test Code ---------------
 
 void doColorWipe(int microsecond) {

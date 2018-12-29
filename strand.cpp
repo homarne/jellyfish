@@ -24,7 +24,13 @@ running_status Strand::chase_step() {
     if (checkDroppedFrame() == DROP) {
         return (running_status) RUNNING;
     }
+
     chase();
+
+    if (position == strip_end_position) {
+        return (running_status) LAST_PIXEL;
+    }
+
     return RUNNING;
 }
 
