@@ -83,27 +83,31 @@ Synapse strand_08 = Synapse(leds, 1008, 1152, GREEN, 0.8, 60);
 
 #if MODE==MONOLITH
 
-// upper monolith is 110 LEDs
-Strand upper_1 = Strand(leds, 0, 110, GREEN, 100, FORWARD, 5);
-Strand upper_2 = Strand(leds, 144+34, 110, GREEN, 100, REVERSE, 5);
-Strand upper_3 = Strand(leds, 288, 110, GREEN, 100, FORWARD, 5);
-Strand upper_4 = Strand(leds, 432+34, 110, GREEN, 100, REVERSE, 5);
-Strand upper_5 = Strand(leds, 576, 110, GREEN, 100, FORWARD, 5);
-Strand upper_6 = Strand(leds, 720+34, 110, GREEN, 100, REVERSE, 5);
-Strand upper_7 = Strand(leds, 864, 110, GREEN, 100, FORWARD, 5);
-Strand upper_8 = Strand(leds, 1008+34, 110, GREEN, 100, REVERSE, 5);
+#define urate 40
 
+// upper monolith is 110 LEDs
+Strand upper_1 = Strand(leds, 0, 110, GREEN, urate, FORWARD, 5);
+Strand upper_2 = Strand(leds, 144+34, 110, GREEN, urate, REVERSE, 5);
+Strand upper_3 = Strand(leds, 288, 110, GREEN, urate, FORWARD, 5);
+Strand upper_4 = Strand(leds, 432+34, 110, GREEN, urate, REVERSE, 5);
+Strand upper_5 = Strand(leds, 576, 110, GREEN, urate, FORWARD, 5);
+Strand upper_6 = Strand(leds, 720+34, 110, GREEN, urate, REVERSE, 5);
+Strand upper_7 = Strand(leds, 864, 110, GREEN, urate, FORWARD, 5);
+Strand upper_8 = Strand(leds, 1008+34, 110, GREEN, urate, REVERSE, 5);
+
+#define lrate 31
 // Lower monolith is 34 LEDs
-Strand lower_1 = Strand(leds, 0+110, 34, BLUE, 31, REVERSE, 5);
-Strand lower_2 = Strand(leds, 144, 34, BLUE, 31, FORWARD, 5);
-Strand lower_3 = Strand(leds, 288+110, 34, BLUE, 31, REVERSE, 5);
-Strand lower_4 = Strand(leds, 432, 34, BLUE, 31, FORWARD, 5);
-Strand lower_5 = Strand(leds, 576+110, 34, BLUE, 31, REVERSE, 5);
-Strand lower_6 = Strand(leds, 720, 34, BLUE, 31, FORWARD, 5);
-Strand lower_7 = Strand(leds, 864+110, 34, BLUE, 31, REVERSE, 5);
-Strand lower_8 = Strand(leds, 1008, 34, BLUE, 31, FORWARD, 5);
+Strand lower_1 = Strand(leds, 0+110, 34, BLUE, lrate, REVERSE, 5);
+Strand lower_2 = Strand(leds, 144, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_3 = Strand(leds, 288+110, 34, BLUE, lrate, REVERSE, 5);
+Strand lower_4 = Strand(leds, 432, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_5 = Strand(leds, 576+110, 34, BLUE, lrate, REVERSE, 5);
+Strand lower_6 = Strand(leds, 720, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_7 = Strand(leds, 864+110, 34, BLUE, lrate, REVERSE, 5);
+Strand lower_8 = Strand(leds, 1008, 34, BLUE, lrate, FORWARD, 5);
 
 int strand_index = 0;
+int color_index = 0;
 running_status strand_status = STOPPED;
 Strand * upper_strands[8];
 Strand * lower_strands[8];
@@ -138,6 +142,7 @@ void setup() {
 #endif
 
 #if MODE==MONOLITH
+
     initUpperStrandArray();
     initLowerStrandArray();
     strandsSetColor(upper_strands, WHITE);
@@ -180,25 +185,108 @@ void loop() {
 #if MODE==MONOLITH
     //int microseconds = 1000 / leds.numPixels();  // change them all in 2 seconds
     //baseChase(microseconds);
-    // 1) wipe colors
+    // 1) wipe multi-color
     // 2) wipe single color
     // 3)  rotate colors
     // 4) rotate single color
+    int upper_mode = 0;
+    int mode_count = 0;
+    // wipeMultiColorStrands(wipes)
+    // wipeSingleColorStrands(wipes)
+    // rotateColorStrands(rotations)
+//    if (upper_mode == 0){
+//        strandsChaseStep(upper_strands);
+//
+//        if (strand_status == LAST_PIXEL ){
+//            rotateStrandsMultiColor();
+//            mode_count++;
+//        }
+//        if (mode_count >= 12){
+//            upper_mode = 1;
+//            mode_count = 0;
+//        }
+//    }
+//    else if (upper_mode == 1){
+//    }
+//    else if (upper_mode == 3){
+//    }
 
     strandsChaseStep(upper_strands);
 
+//    if (strand_status == LAST_PIXEL ){
+//        rotateStrandsMultiColor();
+//        mode_count++;
+//    }
+
     if (strand_status == LAST_PIXEL ){
-        rotateStrandColors();
+        rotateStrandsColor();
+        mode_count++;
     }
 
-    strandsChaseStep(lower_strands);
 
+
+    strandsChaseStep(lower_strands);
 
     leds.show();
 #endif
 
 }
 #if MODE==MONOLITH
+
+
+void rotateStrandsMultiColor(){
+    strandsSetMultiColor(strand_index);
+    if ((strand_index >= 7) || (strand_index < 0)){
+        strand_index = 0;
+    }
+    else {
+        strand_index++;
+    }
+}
+
+void strandsSetMultiColor(int offset){
+
+    RGB color;
+
+    for (int i=0; i<8; i++){
+        color = palette[(i+offset) % 6];
+        upper_strands[i]->color = color;
+    }
+}
+
+void rotateStrandsColor(){
+    RGB color = palette[color_index];
+    //strandsSetNextColor(strand_index);
+    upper_strands[strand_index]->color = color;
+    if ((strand_index >= 7) || (strand_index < 0)){
+        strand_index = 0;
+    }
+    else {
+        strand_index++;
+    }
+
+    if (strand_index == 0){
+        if ((color_index >= 7) || (color_index < 0)){
+            color_index = 0;
+        }
+        else {
+            color_index++;
+        }
+    }
+
+}
+
+
+//void strandsSetColor(int offset){
+//
+//    RGB color;
+//
+//    for (int i=0; i<8; i++){
+//        color = palette[(i+offset) % 6];
+//        upper_strands[i]->color = color;
+//    }
+//}
+
 void initUpperStrandArray(){
     upper_strands[0] = &upper_1;
     upper_strands[1] = &upper_2;
@@ -236,26 +324,6 @@ void strandsSetColor(Strand **strands, RGB color){
 void strandsSetWipe(Strand **strands, bool wipe){
     for (int i=0; i<8; i++){
         strands[i]->setWipe(wipe);
-    }
-}
-
-void rotateStrandColors(){
-    strandsSetColorsFromPalette(strand_index);
-    //strand_index++;// =
-    if ((strand_index >= 7) || (strand_index < 0)){
-        strand_index = 0;
-    }
-    else {
-        strand_index++;
-    }
-}
-void strandsSetColorsFromPalette(int offset){
-
-    RGB color;
-
-    for (int i=0; i<8; i++){
-        color = palette[(i+offset) % 6];
-        upper_strands[i]->color = color;
     }
 }
 #endif
