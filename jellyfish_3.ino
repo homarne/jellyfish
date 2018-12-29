@@ -50,7 +50,7 @@
 
 #define MODE MONOLITH
 
-#if MODE==MONOLITH
+#if MODE==TEST_MODE || MODE==MONOLITH
 const int ledsPerStrip = 2*144;
 #else
 const int ledsPerStrip = 1*144;
@@ -105,7 +105,8 @@ Strand lower_8 = Strand(leds, 1008, 34, BLUE, 31, FORWARD, 5);
 
 int strand_index = 0;
 running_status strand_status = STOPPED;
-Strand * strands[8];
+Strand * upper_strands[8];
+Strand * lower_strands[8];
 
 #endif
 //
@@ -137,8 +138,13 @@ void setup() {
 #endif
 
 #if MODE==MONOLITH
-    init_strand_array();
-    strands[0]->color = RED;
+    initUpperStrandArray();
+    initLowerStrandArray();
+    strandsSetColor(upper_strands, WHITE);
+    strandsSetColor(lower_strands, WHITE);
+    strandsSetWipe(upper_strands, true);
+
+
 #endif
 
     leds.begin();
@@ -151,7 +157,8 @@ void loop() {
     // basic tests for eight 144-led strands connected to OctoWS2811
     int microseconds = 1000 / leds.numPixels();  // change them all in 2 seconds
     //doColorWipe(microseconds);
-    doColorStars(microseconds);
+    doWhiteWipe(microseconds);
+    //doColorStars(microseconds);
     //doRgbStars(microseconds);
     delayMicroseconds(10000);
 #endif
@@ -178,50 +185,62 @@ void loop() {
     // 3)  rotate colors
     // 4) rotate single color
 
-
-    upper_1.chase_step();
-    upper_2.chase_step();
-    upper_3.chase_step();
-    upper_4.chase_step();
-    upper_5.chase_step();
-    upper_6.chase_step();
-    upper_7.chase_step();
-    strand_status = upper_8.chase_step();
+    strandsChaseStep(upper_strands);
 
     if (strand_status == LAST_PIXEL ){
-        rotate_strand_colors();
+        rotateStrandColors();
     }
 
-    // 1) chase white up
-    // 2) chase white down
-    lower_1.chase_step();
-    lower_2.chase_step();
-    lower_3.chase_step();
-    lower_4.chase_step();
-    lower_5.chase_step();
-    lower_6.chase_step();
-    lower_7.chase_step();
-    lower_8.chase_step();
+    strandsChaseStep(lower_strands);
 
 
     leds.show();
 #endif
 
 }
-//---------- monolith ----------------
-void init_strand_array(){
-    strands[0] = &upper_1;
-    strands[1] = &upper_2;
-    strands[2] = &upper_3;
-    strands[3] = &upper_4;
-    strands[4] = &upper_5;
-    strands[5] = &upper_6;
-    strands[6] = &upper_7;
-    strands[7] = &upper_8;
+#if MODE==MONOLITH
+void initUpperStrandArray(){
+    upper_strands[0] = &upper_1;
+    upper_strands[1] = &upper_2;
+    upper_strands[2] = &upper_3;
+    upper_strands[3] = &upper_4;
+    upper_strands[4] = &upper_5;
+    upper_strands[5] = &upper_6;
+    upper_strands[6] = &upper_7;
+    upper_strands[7] = &upper_8;
 }
 
-void rotate_strand_colors(){
-    set_strand_colors(strand_index);
+void initLowerStrandArray(){
+    lower_strands[0] = &lower_1;
+    lower_strands[1] = &lower_2;
+    lower_strands[2] = &lower_3;
+    lower_strands[3] = &lower_4;
+    lower_strands[4] = &lower_5;
+    lower_strands[5] = &lower_6;
+    lower_strands[6] = &lower_7;
+    lower_strands[7] = &lower_8;
+}
+
+void strandsChaseStep(Strand **strands){
+    for (int i=0; i<8; i++){
+        strand_status = strands[i]->chase_step();
+    }
+}
+
+void strandsSetColor(Strand **strands, RGB color){
+    for (int i=0; i<8; i++){
+        strands[i]->setColor(color);
+    }
+}
+
+void strandsSetWipe(Strand **strands, bool wipe){
+    for (int i=0; i<8; i++){
+        strands[i]->setWipe(wipe);
+    }
+}
+
+void rotateStrandColors(){
+    strandsSetColorsFromPalette(strand_index);
     //strand_index++;// =
     if ((strand_index >= 7) || (strand_index < 0)){
         strand_index = 0;
@@ -230,17 +249,16 @@ void rotate_strand_colors(){
         strand_index++;
     }
 }
-void set_strand_colors(int offset){
+void strandsSetColorsFromPalette(int offset){
 
     RGB color;
 
     for (int i=0; i<8; i++){
         color = palette[(i+offset) % 6];
-        strands[i]->color = color;
+        upper_strands[i]->color = color;
     }
-
-
 }
+#endif
 //---------- Test Code ---------------
 
 void doColorWipe(int microsecond) {
@@ -253,6 +271,10 @@ void doColorWipe(int microsecond) {
   colorWipe(CYAN, MAGENTA, WHITE, RED, GREEN, BLUE, YELLOW, CYAN, microsecond);
   colorWipe(MAGENTA, WHITE, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, microsecond);
   colorWipe(WHITE, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, WHITE, microsecond);
+}
+
+void doWhiteWipe(int microseconds){
+    colorWipe(WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, microseconds);
 }
 
 void doColorStars(int microsecond) {

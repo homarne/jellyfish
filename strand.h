@@ -34,6 +34,9 @@ public:
     void setFrameRate(int _frame_rate);
     frame_status checkDroppedFrame();
 
+    void setColor(RGB _color);
+    void setWipe(bool _wipe);
 
     int chase_length;
+    bool wipe;
 };

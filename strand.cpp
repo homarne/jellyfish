@@ -39,16 +39,18 @@ void Strand::chase(){
         position = strip_start_position;
     }
 
-    int off_position = position - chase_length;
-    if (off_position < strip_start_position){
-        off_position = strip_end_position - (strip_start_position - off_position);
-    }
-    
     int adjusted_position = adjustChaseDirection(position);
     setPixel(adjusted_position, color);
 
-    adjusted_position = adjustChaseDirection(off_position);
-    setPixel(adjusted_position, OFF);
+    if (wipe == false){
+        int off_position = position - chase_length;
+        if (off_position < strip_start_position){
+            off_position = strip_end_position - (strip_start_position - off_position);
+        }
+        adjusted_position = adjustChaseDirection(off_position);
+        setPixel(adjusted_position, OFF);
+    }
+
 
     position ++;
 }
@@ -121,3 +123,12 @@ frame_status Strand::checkDroppedFrame() {
 
     return status;
 }
+
+void Strand::setColor(RGB _color) {
+    color = _color;
+}
+
+void Strand::setWipe(bool _wipe) {
+    wipe = _wipe;
+}
+
