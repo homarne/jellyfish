@@ -24,18 +24,9 @@ const RGB WHITE {LEVEL, LEVEL, LEVEL};
 const RGB OFF {0, 0, 0};
 
 const RGB palette[7]{RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, WHITE};
-//crossfade palette - transiton from one color to another without intermediary
-const RGB crossfade_palette[7]{RED, YELLOW, GREEN, CYAN, BLUE, MAGENTA};
 
-const RGB WHITE_2 {128, 128, 128};
-const RGB WHITE_4 {64, 64, 64};
-const RGB WHITE_8 {32, 32, 32};
-
-//const RGB white_lighthouse[8]{OFF, WHITE_4, WHITE_2, WHITE, WHITE_2, WHITE_4, OFF, OFF};
-const RGB white_lighthouse[8]{OFF, OFF, WHITE_8, WHITE, WHITE_8, OFF, OFF, OFF};
-
-//#define OFF  0x000000
-
+// 100 step (plus zero) log scale brightness conversion
+// for visually smo0th fades
 const int brightness[101]{
         1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 3, 3, 3,
