@@ -35,6 +35,7 @@ public:
     frame_status checkDroppedFrame();
 
     void setColor(RGB _color);
+    void setAll(RGB _color);
     void setWipe(bool _wipe);
 
     int chase_length;

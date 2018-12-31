@@ -83,7 +83,7 @@ Synapse strand_08 = Synapse(leds, 1008, 1152, GREEN, 0.8, 60);
 
 #if MODE==MONOLITH
 
-#define urate 40
+#define urate 100
 
 // upper monolith is 110 LEDs
 Strand upper_1 = Strand(leds, 0, 110, GREEN, urate, FORWARD, 5);
@@ -106,11 +106,26 @@ Strand lower_6 = Strand(leds, 720, 34, BLUE, lrate, FORWARD, 5);
 Strand lower_7 = Strand(leds, 864+110, 34, BLUE, lrate, REVERSE, 5);
 Strand lower_8 = Strand(leds, 1008, 34, BLUE, lrate, FORWARD, 5);
 
+#define LIGHTHOUSE_COUNT 48
+#define STRAND_CHASE_COUNT 24
 int strand_index = 0;
 int color_index = 0;
+int crossfade_index = 0;
+int rotate_count_down = 0;
+int level_index = 0;
+int level_direction = 0;
+RGB current_color = RED;
+RGB ramp_up_color = current_color;
+RGB hold_color = ramp_up_color;
+RGB ramp_down_color = hold_color;
+RGB from_color= RED;
+RGB to_color= RED;
+int upper_mode = 0;
+int upper_mode_count=LIGHTHOUSE_COUNT;
 running_status strand_status = STOPPED;
 Strand * upper_strands[8];
 Strand * lower_strands[8];
+running_status status = STOPPED;
 
 #endif
 //
@@ -145,7 +160,7 @@ void setup() {
 
     initUpperStrandArray();
     initLowerStrandArray();
-    strandsSetColor(upper_strands, WHITE);
+    strandsSetColor(upper_strands, RED);
     strandsSetColor(lower_strands, WHITE);
     strandsSetWipe(upper_strands, true);
 
@@ -189,8 +204,7 @@ void loop() {
     // 2) wipe single color
     // 3)  rotate colors
     // 4) rotate single color
-    int upper_mode = 0;
-    int mode_count = 0;
+
     // wipeMultiColorStrands(wipes)
     // wipeSingleColorStrands(wipes)
     // rotateColorStrands(rotations)
@@ -211,18 +225,49 @@ void loop() {
 //    else if (upper_mode == 3){
 //    }
 
-    strandsChaseStep(upper_strands);
+
+
+
+
 
 //    if (strand_status == LAST_PIXEL ){
-//        rotateStrandsMultiColor();
+//        rotateStrandsColor();
 //        mode_count++;
 //    }
 
-    if (strand_status == LAST_PIXEL ){
-        rotateStrandsColor();
-        mode_count++;
+//    //yuk
+//    rotateStrandsColor();
+
+    if (upper_mode == 0){
+        if (upper_mode_count <=0){
+            upper_mode = 1;
+            upper_mode_count = STRAND_CHASE_COUNT;
+        }
+        else{
+            status = lighthouse();
+            if (status == LAST_PIXEL ) {
+                upper_mode_count--;
+            }
+        }
+
     }
 
+    if (upper_mode == 1){
+        if (upper_mode_count <=0){
+            upper_mode = 0;
+            upper_mode_count = LIGHTHOUSE_COUNT;
+        }
+        else{
+            status = strandsChaseStep(upper_strands);
+
+
+            if (status == LAST_PIXEL ){
+                RGB color = nextColor();
+                strandsSetColor(upper_strands, color);
+                upper_mode_count--;
+            }
+        }
+    }
 
 
     strandsChaseStep(lower_strands);
@@ -233,6 +278,106 @@ void loop() {
 }
 #if MODE==MONOLITH
 
+
+running_status lighthouse(){
+    RGB color;
+    running_status status;
+
+    // the current strand (strand_index) continues at full brightness...
+    int next_strand = (strand_index+1);
+    if (next_strand > 7){next_strand = next_strand - 8;}
+
+    // ramp up
+    color = scaleBrightness(ramp_up_color, level_index);
+    upper_strands[next_strand]->setAll(color);
+
+    int last_strand = (strand_index-1);
+    if (last_strand < 0){last_strand = last_strand + 8;}
+
+    // ramp down
+    color = scaleBrightness(ramp_down_color, 100 - level_index);
+    upper_strands[last_strand]->setAll(color);
+
+    if (level_index >= 100){
+        level_index = 0;
+        status = LAST_PIXEL;
+    }
+    else{
+        level_index++;
+        if ((level_index % 3)==0){level_index++;}
+        status = RUNNING;
+    }
+
+    // if fade complete, update colors and move to next strand
+    if (level_index ==0){
+        // colors are updated so as to ensure that the color ramped down
+        // is the same as the color ramped up
+        ramp_down_color = hold_color;
+        hold_color = ramp_up_color;
+        ramp_up_color = current_color;
+
+        nextStrand();
+
+        // rotation complete, move to next color
+        if (strand_index == 0){
+            current_color = nextColor();
+        }
+    }
+    return status;
+
+
+}
+
+void nextStrand(){
+    if ((strand_index >= 7) || (strand_index < 0)){
+        strand_index = 0;
+    }
+    else {
+        strand_index++;
+    }
+}
+
+RGB nextColor(){
+    if ((color_index >= 6) || (color_index < 0)){
+        color_index = 0;
+    }
+    else {
+        color_index++;
+    }
+
+    return palette[color_index];
+}
+
+
+void pulseOne(){
+    RGB color;
+
+    color = scaleBrightness(RED, level_index);
+    upper_strands[0]->setAll(color);
+
+    if (level_index >= 100){
+        level_direction = 1;
+    }
+    if (level_index <= 0){
+        level_direction = 0;
+    }
+    if (level_direction == 0){
+        level_index++;
+    }
+    else{
+        level_index--;
+    }
+}
+
+RGB scaleBrightness(RGB _color, int level){
+    RGB color;
+    int level_factor = brightness[level];
+    color.red = (_color.red * level_factor)/255;
+    color.green = (_color.green * level_factor)/255;
+    color.blue = (_color.blue * level_factor)/255;
+    return color;
+
+}
 
 void rotateStrandsMultiColor(){
     strandsSetMultiColor(strand_index);
@@ -250,29 +395,77 @@ void strandsSetMultiColor(int offset){
 
     for (int i=0; i<8; i++){
         color = palette[(i+offset) % 6];
-        upper_strands[i]->color = color;
+        upper_strands[i]->setAll(color);
     }
 }
 
 void rotateStrandsColor(){
-    RGB color = palette[color_index];
-    //strandsSetNextColor(strand_index);
-    upper_strands[strand_index]->color = color;
-    if ((strand_index >= 7) || (strand_index < 0)){
-        strand_index = 0;
-    }
-    else {
-        strand_index++;
-    }
+    if (rotate_count_down == 0){
 
-    if (strand_index == 0){
-        if ((color_index >= 7) || (color_index < 0)){
-            color_index = 0;
+        RGB color = palette[color_index];
+        //strandsSetNextColor(strand_index);
+        upper_strands[strand_index]->setAll(color);
+
+        if ((strand_index >= 7) || (strand_index < 0)){
+            strand_index = 0;
         }
         else {
-            color_index++;
+            strand_index++;
         }
+
+        if (strand_index == 0){
+            if ((color_index >= 6) || (color_index < 0)){
+                color_index = 0;
+            }
+            else {
+                color_index++;
+            }
+        }
+        rotate_count_down = 25;
+
     }
+    rotate_count_down -= 1;
+}
+
+void crossfadeStrandsColor(){
+    if (rotate_count_down == 0) { //next step
+        //update strands
+        if (crossfade_index == 14) { // start new crossfade
+            crossfade_index = 0;
+            if ((color_index >= 6) || (color_index < 0)){ // next color
+                color_index = 0;
+            }
+            else {
+                color_index++;
+            }
+            from_color = to_color;
+            to_color = crossfade_palette[color_index];
+        }
+
+    }
+}
+
+
+
+RGB crossFadeColor(RGB start_color, RGB end_color, int fade_amount, int fade_steps){
+    if (fade_steps < 1) {fade_steps =1;}
+    if (fade_steps > 64) {fade_steps = 64;}
+    if (fade_amount <= 0) {fade_amount =0;}
+    if (fade_amount > fade_steps) {fade_amount = fade_steps;}
+
+    int red_distance = end_color.red - start_color.red;
+    int green_distance = end_color.green - start_color.green;
+    int blue_distance = end_color.blue - start_color.blue;
+    int red_step = red_distance/fade_steps;
+    int green_step = green_distance/fade_steps;
+    int blue_step = green_distance/fade_steps;
+
+    RGB crossfade_color;
+    crossfade_color.red = start_color.red + (fade_amount * red_step);
+    crossfade_color.green = start_color.green + (fade_amount * green_step);
+    crossfade_color.blue = start_color.blue + (fade_amount * blue_step);
+    return crossfade_color;
+
 
 }
 
@@ -309,10 +502,13 @@ void initLowerStrandArray(){
     lower_strands[7] = &lower_8;
 }
 
-void strandsChaseStep(Strand **strands){
+running_status strandsChaseStep(Strand **strands){
+    running_status status;
     for (int i=0; i<8; i++){
-        strand_status = strands[i]->chase_step();
+        status = strands[i]->chase_step();
     }
+
+    return  status;
 }
 
 void strandsSetColor(Strand **strands, RGB color){

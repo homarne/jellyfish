@@ -55,20 +55,11 @@ void Strand::chase(){
     position ++;
 }
 
-//void Strand::chase(){
-//    if (position >= strip_end_position){
-//        position = strip_start_position;
-//    }
-//
-//    int adjusted_position = adjustChaseDirection(position);
-//    setPixel(adjusted_position, color);
-//
-//    adjusted_position = adjustChaseDirection(last_position);
-//    setPixel(adjusted_position, OFF);
-//
-//    last_position = position;
-//    position ++;
-//}
+void Strand::setAll(RGB color){
+    for (int i= strip_start_position; i<strip_end_position; i++){
+        setPixel(i, color);
+    }
+}
 
 int Strand::adjustChaseDirection(int pixel_number) {
     if (direction == FORWARD) {
