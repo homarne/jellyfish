@@ -51,7 +51,7 @@
 #define MODE MONOLITH
 
 #if MODE == TEST_MODE || MODE == MONOLITH
-const int ledsPerStrip = 2 * 144;
+const int ledsPerStrip = 1 * 144;
 #else
 const int ledsPerStrip = 1*144;
 #endif
@@ -83,26 +83,47 @@ Synapse strand_08 = Synapse(leds, 1008, 1152, GREEN, 0.8, 60);
 #if MODE == MONOLITH
 #define urate 100
 
+//// upper monolith is 110 LEDs
+//Strand upper_1 = Strand(leds, 0, 110, GREEN, urate, FORWARD, 5);
+//Strand upper_2 = Strand(leds, 144 + 34, 110, GREEN, urate, REVERSE, 5);
+//Strand upper_3 = Strand(leds, 288, 110, GREEN, urate, FORWARD, 5);
+//Strand upper_4 = Strand(leds, 432 + 34, 110, GREEN, urate, REVERSE, 5);
+//Strand upper_5 = Strand(leds, 576, 110, GREEN, urate, FORWARD, 5);
+//Strand upper_6 = Strand(leds, 720 + 34, 110, GREEN, urate, REVERSE, 5);
+//Strand upper_7 = Strand(leds, 864, 110, GREEN, urate, FORWARD, 5);
+//Strand upper_8 = Strand(leds, 1008 + 34, 110, GREEN, urate, REVERSE, 5);
+//
+//#define lrate 31
+//// Lower monolith is 34 LEDs
+//Strand lower_1 = Strand(leds, 0 + 110, 34, BLUE, lrate, REVERSE, 5);
+//Strand lower_2 = Strand(leds, 144, 34, BLUE, lrate, FORWARD, 5);
+//Strand lower_3 = Strand(leds, 288 + 110, 34, BLUE, lrate, REVERSE, 5);
+//Strand lower_4 = Strand(leds, 432, 34, BLUE, lrate, FORWARD, 5);
+//Strand lower_5 = Strand(leds, 576 + 110, 34, BLUE, lrate, REVERSE, 5);
+//Strand lower_6 = Strand(leds, 720, 34, BLUE, lrate, FORWARD, 5);
+//Strand lower_7 = Strand(leds, 864 + 110, 34, BLUE, lrate, REVERSE, 5);
+//Strand lower_8 = Strand(leds, 1008, 34, BLUE, lrate, FORWARD, 5);
+
 // upper monolith is 110 LEDs
 Strand upper_1 = Strand(leds, 0, 110, GREEN, urate, FORWARD, 5);
-Strand upper_2 = Strand(leds, 144 + 34, 110, GREEN, urate, REVERSE, 5);
+Strand upper_2 = Strand(leds, 144, 110, GREEN, urate, FORWARD, 5);
 Strand upper_3 = Strand(leds, 288, 110, GREEN, urate, FORWARD, 5);
-Strand upper_4 = Strand(leds, 432 + 34, 110, GREEN, urate, REVERSE, 5);
+Strand upper_4 = Strand(leds, 432, 110, GREEN, urate, FORWARD, 5);
 Strand upper_5 = Strand(leds, 576, 110, GREEN, urate, FORWARD, 5);
-Strand upper_6 = Strand(leds, 720 + 34, 110, GREEN, urate, REVERSE, 5);
+Strand upper_6 = Strand(leds, 720, 110, GREEN, urate, FORWARD, 5);
 Strand upper_7 = Strand(leds, 864, 110, GREEN, urate, FORWARD, 5);
-Strand upper_8 = Strand(leds, 1008 + 34, 110, GREEN, urate, REVERSE, 5);
+Strand upper_8 = Strand(leds, 1008, 110, GREEN, urate, FORWARD, 5);
 
 #define lrate 31
 // Lower monolith is 34 LEDs
-Strand lower_1 = Strand(leds, 0 + 110, 34, BLUE, lrate, REVERSE, 5);
-Strand lower_2 = Strand(leds, 144, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_3 = Strand(leds, 288 + 110, 34, BLUE, lrate, REVERSE, 5);
-Strand lower_4 = Strand(leds, 432, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_5 = Strand(leds, 576 + 110, 34, BLUE, lrate, REVERSE, 5);
-Strand lower_6 = Strand(leds, 720, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_7 = Strand(leds, 864 + 110, 34, BLUE, lrate, REVERSE, 5);
-Strand lower_8 = Strand(leds, 1008, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_1 = Strand(leds, 0 + 110, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_2 = Strand(leds, 144 + 110, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_3 = Strand(leds, 288 + 110, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_4 = Strand(leds, 432 + 110, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_5 = Strand(leds, 576 + 110, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_6 = Strand(leds, 720 + 110, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_7 = Strand(leds, 864 + 110, 34, BLUE, lrate, FORWARD, 5);
+Strand lower_8 = Strand(leds, 1008 + 110, 34, BLUE, lrate, FORWARD, 5);
 
 #define LIGHTHOUSE_COUNT 48
 #define STRAND_CHASE_COUNT 24
