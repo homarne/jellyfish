@@ -4,13 +4,13 @@
 #include "strand.h"
 
 
-Strand::Strand(OctoWS2811 &_strip,
+Strand::Strand(OctoWS2811 _strip,
                int first,
                int length,
                RGB _color,
                int _rate,
                chase_direction _direction,
-               int _chase_length) : strip(_strip){
+               int _chase_length) : strip(_strip) {
     strip_start_position = first;
     strip_end_position = strip_start_position + length;
     position = first;
@@ -18,7 +18,10 @@ Strand::Strand(OctoWS2811 &_strip,
     setFrameRate(_rate);
     direction = _direction;
     chase_length = _chase_length;
+    wipe = false;
 }
+
+//Strand::Strand(){}
 
 running_status Strand::chase_step() {
     if (checkDroppedFrame() == DROP) {
@@ -34,29 +37,30 @@ running_status Strand::chase_step() {
     return RUNNING;
 }
 
-void Strand::chase(){
-    if (position >= strip_end_position){
+void Strand::chase() {
+    if (position >= strip_end_position) {
         position = strip_start_position;
     }
 
     int adjusted_position = adjustChaseDirection(position);
     setPixel(adjusted_position, color);
 
-    if (wipe == false){
+    if (wipe == false) {
         int off_position = position - chase_length;
-        if (off_position < strip_start_position){
-            off_position = strip_end_position - (strip_start_position - off_position);
+        if (off_position < strip_start_position) {
+            off_position =
+                    strip_end_position - (strip_start_position - off_position);
         }
         adjusted_position = adjustChaseDirection(off_position);
         setPixel(adjusted_position, OFF);
     }
 
 
-    position ++;
+    position++;
 }
 
-void Strand::setAll(RGB color){
-    for (int i= strip_start_position; i<strip_end_position; i++){
+void Strand::setAll(RGB color) {
+    for (int i = strip_start_position; i < strip_end_position; i++) {
         setPixel(i, color);
     }
 }
@@ -74,7 +78,7 @@ int Strand::rgbToInt(RGB _color) {
     return color;
 }
 
-void Strand::setPixel(int position, RGB color){
+void Strand::setPixel(int position, RGB color) {
     strip.setPixel(position, rgbToInt(color));
 }
 

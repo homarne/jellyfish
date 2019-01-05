@@ -42,6 +42,7 @@
 #include "rgb_colors.h"
 #include "synapse_lib.h"
 #include "strand.h"
+#include "monolith.h"
 
 #define TEST_MODE 0
 #define JELLYFISH 1
@@ -79,67 +80,20 @@ Synapse strand_08 = Synapse(leds, 1008, 1152, GREEN, 0.8, 60);
 
 #endif // if JELLYFISH || JELLYFISH_HEAD
 
-
 #if MODE == MONOLITH
 #define urate 100
-
-//// upper monolith is 110 LEDs
-//Strand upper_1 = Strand(leds, 0, 110, GREEN, urate, FORWARD, 5);
-//Strand upper_2 = Strand(leds, 144 + 34, 110, GREEN, urate, REVERSE, 5);
-//Strand upper_3 = Strand(leds, 288, 110, GREEN, urate, FORWARD, 5);
-//Strand upper_4 = Strand(leds, 432 + 34, 110, GREEN, urate, REVERSE, 5);
-//Strand upper_5 = Strand(leds, 576, 110, GREEN, urate, FORWARD, 5);
-//Strand upper_6 = Strand(leds, 720 + 34, 110, GREEN, urate, REVERSE, 5);
-//Strand upper_7 = Strand(leds, 864, 110, GREEN, urate, FORWARD, 5);
-//Strand upper_8 = Strand(leds, 1008 + 34, 110, GREEN, urate, REVERSE, 5);
-//
-//#define lrate 31
-//// Lower monolith is 34 LEDs
-//Strand lower_1 = Strand(leds, 0 + 110, 34, BLUE, lrate, REVERSE, 5);
-//Strand lower_2 = Strand(leds, 144, 34, BLUE, lrate, FORWARD, 5);
-//Strand lower_3 = Strand(leds, 288 + 110, 34, BLUE, lrate, REVERSE, 5);
-//Strand lower_4 = Strand(leds, 432, 34, BLUE, lrate, FORWARD, 5);
-//Strand lower_5 = Strand(leds, 576 + 110, 34, BLUE, lrate, REVERSE, 5);
-//Strand lower_6 = Strand(leds, 720, 34, BLUE, lrate, FORWARD, 5);
-//Strand lower_7 = Strand(leds, 864 + 110, 34, BLUE, lrate, REVERSE, 5);
-//Strand lower_8 = Strand(leds, 1008, 34, BLUE, lrate, FORWARD, 5);
-
-// upper monolith is 110 LEDs
-Strand upper_1 = Strand(leds, 0, 110, GREEN, urate, FORWARD, 5);
-Strand upper_2 = Strand(leds, 144, 110, GREEN, urate, FORWARD, 5);
-Strand upper_3 = Strand(leds, 288, 110, GREEN, urate, FORWARD, 5);
-Strand upper_4 = Strand(leds, 432, 110, GREEN, urate, FORWARD, 5);
-Strand upper_5 = Strand(leds, 576, 110, GREEN, urate, FORWARD, 5);
-Strand upper_6 = Strand(leds, 720, 110, GREEN, urate, FORWARD, 5);
-Strand upper_7 = Strand(leds, 864, 110, GREEN, urate, FORWARD, 5);
-Strand upper_8 = Strand(leds, 1008, 110, GREEN, urate, FORWARD, 5);
-
 #define lrate 31
-// Lower monolith is 34 LEDs
-Strand lower_1 = Strand(leds, 0 + 110, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_2 = Strand(leds, 144 + 110, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_3 = Strand(leds, 288 + 110, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_4 = Strand(leds, 432 + 110, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_5 = Strand(leds, 576 + 110, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_6 = Strand(leds, 720 + 110, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_7 = Strand(leds, 864 + 110, 34, BLUE, lrate, FORWARD, 5);
-Strand lower_8 = Strand(leds, 1008 + 110, 34, BLUE, lrate, FORWARD, 5);
 
 #define LIGHTHOUSE_COUNT 48
 #define STRAND_CHASE_COUNT 24
-int strand_index = 0;
-int color_index = 0;
-int level_index = 0;
-int level_direction = 0;
-RGB current_color = RED;
-RGB ramp_up_color = current_color;
-RGB hold_color = ramp_up_color;
-RGB ramp_down_color = hold_color;
+
 int upper_mode = 0;
 int upper_mode_count = LIGHTHOUSE_COUNT;
-Strand *upper_strands[8];
-Strand *lower_strands[8];
 running_status status = STOPPED;
+
+Monolith upper_monolith = Monolith(leds, 8);
+Monolith lower_monolith = Monolith(leds, 8);
+
 #endif
 //
 int status_1 = 0;
@@ -170,11 +124,14 @@ void setup() {
 #endif
 
 #if MODE == MONOLITH
-    initUpperStrandArray();
-    initLowerStrandArray();
-    strandsSetColor(upper_strands, RED);
-    strandsSetColor(lower_strands, WHITE);
-    strandsSetWipe(upper_strands, true);
+
+    initializeMonolith();
+
+    upper_monolith.strandsSetColor(RED);
+    upper_monolith.strandsSetWipe(true);
+
+    lower_monolith.strandsSetColor(WHITE);
+
 #endif
 
     leds.begin();
@@ -214,7 +171,8 @@ void loop() {
             upper_mode = 1;
             upper_mode_count = STRAND_CHASE_COUNT;
         } else {
-            status = lighthouse();
+            //status = lighthouse();
+            status = upper_monolith.lighthouse();
             if (status == LAST_PIXEL) {
                 upper_mode_count--;
             }
@@ -226,18 +184,22 @@ void loop() {
             upper_mode = 0;
             upper_mode_count = LIGHTHOUSE_COUNT;
         } else {
-            status = strandsChaseStep(upper_strands);
+            //status = strandsChaseStep(upper_strands);
+            status = upper_monolith.strandsChaseStep();
 
 
             if (status == LAST_PIXEL) {
-                RGB color = nextColor();
-                strandsSetColor(upper_strands, color);
+                //RGB color = nextColor();
+                //strandsSetColor(upper_strands, color);
+                RGB color = upper_monolith.nextColor();
+                upper_monolith.strandsSetColor(color);
                 upper_mode_count--;
             }
         }
     }
 
-    strandsChaseStep(lower_strands);
+    //strandsChaseStep(lower_strands);
+    lower_monolith.strandsChaseStep();
 
     leds.show();
 }
@@ -247,169 +209,24 @@ void loop() {
 
 #if MODE == MONOLITH
 
-running_status lighthouse() {
-    RGB color;
-    running_status status;
+void initializeMonolith(){
+    upper_monolith.addStrand(0, 110, GREEN, urate, FORWARD, 5);
+    upper_monolith.addStrand( 144, 110, GREEN, urate, FORWARD, 5);
+    upper_monolith.addStrand(288, 110, GREEN, urate, FORWARD, 5);
+    upper_monolith.addStrand(432, 110, GREEN, urate, FORWARD, 5);
+    upper_monolith.addStrand(576, 110, GREEN, urate, FORWARD, 5);
+    upper_monolith.addStrand(720, 110, GREEN, urate, FORWARD, 5);
+    upper_monolith.addStrand(864, 110, GREEN, urate, FORWARD, 5);
+    upper_monolith.addStrand(1008, 110, GREEN, urate, FORWARD, 5);
 
-    // the current strand (strand_index) continues at full brightness...
-    int next_strand = (strand_index + 1);
-    if (next_strand > 7) { next_strand = next_strand - 8; }
-
-    // ramp up
-    color = scaleBrightness(ramp_up_color, level_index);
-    upper_strands[next_strand]->setAll(color);
-
-    int last_strand = (strand_index - 1);
-    if (last_strand < 0) { last_strand = last_strand + 8; }
-
-    // ramp down
-    color = scaleBrightness(ramp_down_color, 100 - level_index);
-    upper_strands[last_strand]->setAll(color);
-
-    if (level_index >= 100) {
-        level_index = 0;
-        status = LAST_PIXEL;
-    } else {
-        level_index++;
-        if ((level_index % 3) == 0) { level_index++; }
-        status = RUNNING;
-    }
-
-    // if fade complete, update colors and move to next strand
-    if (level_index == 0) {
-        // colors are updated so as to ensure that the color ramped down
-        // is the same as the color ramped up
-        ramp_down_color = hold_color;
-        hold_color = ramp_up_color;
-        ramp_up_color = current_color;
-
-        nextStrand();
-
-        // rotation complete, move to next color
-        if (strand_index == 0) {
-            current_color = nextColor();
-        }
-    }
-    return status;
-
-
-}
-
-
-void nextStrand() {
-    if ((strand_index >= 7) || (strand_index < 0)) {
-        strand_index = 0;
-    } else {
-        strand_index++;
-    }
-}
-
-
-RGB nextColor() {
-    if ((color_index >= 6) || (color_index < 0)) {
-        color_index = 0;
-    } else {
-        color_index++;
-    }
-
-    return palette[color_index];
-}
-
-
-void pulseStrand() {
-    RGB color;
-
-    color = scaleBrightness(RED, level_index);
-    upper_strands[0]->setAll(color);
-
-    if (level_index >= 100) {
-        level_direction = 1;
-    }
-    if (level_index <= 0) {
-        level_direction = 0;
-    }
-    if (level_direction == 0) {
-        level_index++;
-    } else {
-        level_index--;
-    }
-}
-
-RGB scaleBrightness(RGB _color, int level) {
-    RGB color;
-    int level_factor = brightness[level];
-    color.red = (_color.red * level_factor) / 255;
-    color.green = (_color.green * level_factor) / 255;
-    color.blue = (_color.blue * level_factor) / 255;
-    return color;
-
-}
-
-// untested
-RGB crossFadeColor(RGB start_color, RGB end_color, int fade_amount,
-                   int fade_steps) {
-    if (fade_steps < 1) { fade_steps = 1; }
-    if (fade_steps > 64) { fade_steps = 64; }
-    if (fade_amount <= 0) { fade_amount = 0; }
-    if (fade_amount > fade_steps) { fade_amount = fade_steps; }
-
-    int red_distance = end_color.red - start_color.red;
-    int green_distance = end_color.green - start_color.green;
-    int blue_distance = end_color.blue - start_color.blue;
-    int red_step = red_distance / fade_steps;
-    int green_step = green_distance / fade_steps;
-    int blue_step = green_distance / fade_steps;
-
-    RGB crossfade_color;
-    crossfade_color.red = start_color.red + (fade_amount * red_step);
-    crossfade_color.green = start_color.green + (fade_amount * green_step);
-    crossfade_color.blue = start_color.blue + (fade_amount * blue_step);
-    return crossfade_color;
-
-
-}
-
-void initUpperStrandArray() {
-    upper_strands[0] = &upper_1;
-    upper_strands[1] = &upper_2;
-    upper_strands[2] = &upper_3;
-    upper_strands[3] = &upper_4;
-    upper_strands[4] = &upper_5;
-    upper_strands[5] = &upper_6;
-    upper_strands[6] = &upper_7;
-    upper_strands[7] = &upper_8;
-}
-
-void initLowerStrandArray() {
-    lower_strands[0] = &lower_1;
-    lower_strands[1] = &lower_2;
-    lower_strands[2] = &lower_3;
-    lower_strands[3] = &lower_4;
-    lower_strands[4] = &lower_5;
-    lower_strands[5] = &lower_6;
-    lower_strands[6] = &lower_7;
-    lower_strands[7] = &lower_8;
-}
-
-running_status strandsChaseStep(Strand **strands) {
-    running_status status;
-    for (int i = 0; i < 8; i++) {
-        status = strands[i]->chase_step();
-    }
-
-    return status;
-}
-
-void strandsSetColor(Strand **strands, RGB color) {
-    for (int i = 0; i < 8; i++) {
-        strands[i]->setColor(color);
-    }
-}
-
-void strandsSetWipe(Strand **strands, bool wipe) {
-    for (int i = 0; i < 8; i++) {
-        strands[i]->setWipe(wipe);
-    }
+    lower_monolith.addStrand(0 + 110, 34, BLUE, lrate, FORWARD, 5);
+    lower_monolith.addStrand(144 + 110, 34, BLUE, lrate, FORWARD, 5);
+    lower_monolith.addStrand(288 + 110, 34, BLUE, lrate, FORWARD, 5);
+    lower_monolith.addStrand(432 + 110, 34, BLUE, lrate, FORWARD, 5);
+    lower_monolith.addStrand(576 + 110, 34, BLUE, lrate, FORWARD, 5);
+    lower_monolith.addStrand(720 + 110, 34, BLUE, lrate, FORWARD, 5);
+    lower_monolith.addStrand(864 + 110, 34, BLUE, lrate, FORWARD, 5);
+    lower_monolith.addStrand(1008 + 110, 34, BLUE, lrate, FORWARD, 5);
 }
 
 #endif
