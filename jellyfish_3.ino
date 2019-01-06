@@ -66,6 +66,19 @@ OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
 Jellyfish jellyfish = Jellyfish(leds, 8);
 
+void setup() {
+
+    initializeJellyfish();
+
+    leds.begin();
+    leds.show();
+}
+
+void loop() {
+    jellyfish.synapseChaseStep();
+    leds.show();
+}
+
 #endif
 
 #if MODE == JELLYFISH_HEAD
@@ -73,39 +86,35 @@ Jellyfish jellyfish = Jellyfish(leds, 8);
 Jellyfish jellyfish = Jellyfish(leds, 4);
 Jellyfish jellyfish_head = Jellyfish(leds, 4);
 
+void setup() {
+
+    initializeJellyfishHead();
+
+    leds.begin();
+    leds.show();
+}
+
+void loop() {
+    jellyfish.synapseChaseStep();
+    jellyfish_head.synapseChaseStep();
+    leds.show();
+}
+
 #endif
 
 #if MODE == MONOLITH
-
-
 
 #define LIGHTHOUSE_COUNT 48
 #define STRAND_CHASE_COUNT 24
 
-int upper_mode = 0;
-int upper_mode_count = LIGHTHOUSE_COUNT;
-running_status status = STOPPED;
+    int upper_mode = 0;
+    int upper_mode_count = LIGHTHOUSE_COUNT;
+    running_status status = STOPPED;
 
-Monolith upper_monolith = Monolith(leds, 8);
-Monolith lower_monolith = Monolith(leds, 8);
-
-#endif
+    Monolith upper_monolith = Monolith(leds, 8);
+    Monolith lower_monolith = Monolith(leds, 8);
 
 void setup() {
-
-#if MODE == JELLYFISH
-
-    initializeJellyfish();
-
-#endif
-
-#if MODE == JELLYFISH_HEAD
-
-    initializeJellyfishHead();
-
-#endif
-
-#if MODE == MONOLITH
 
     initializeMonolith();
 
@@ -114,40 +123,11 @@ void setup() {
 
     lower_monolith.strandsSetColor(WHITE);
 
-#endif
-
     leds.begin();
     leds.show();
 }
 
 void loop() {
-
-#if MODE == TEST_MODE
-    // basic tests for eight 144-led strands connected to OctoWS2811
-    int microseconds = 1000 / leds.numPixels();  // change them all in 2 seconds
-    //doColorWipe(microseconds);
-    doWhiteWipe(microseconds);
-    //doColorStars(microseconds);
-    //doRgbStars(microseconds);
-    delayMicroseconds(10000);
-#endif
-
-#if MODE == JELLYFISH
-
-    jellyfish.synapseChaseStep();
-    leds.show();
-
-#endif
-
-#if MODE == JELLYFISH_HEAD
-
-    jellyfish.synapseChaseStep();
-    jellyfish_head.synapseChaseStep();
-    leds.show();
-
-#endif
-
-#if MODE == MONOLITH
 
     if (upper_mode == 0) {
         if (upper_mode_count <= 0) {
@@ -186,9 +166,46 @@ void loop() {
 
     leds.show();
 
+}
+
 #endif
 
-} // end loop
+#if MODE == TEST_MODE
+
+// simplest possible code to exercise the OctoWS2811
+// set leds_per_strip above to match the number of leds
+// attached to any one channel of the OctoWS2811
+
+#define _RED    0xFF0000
+#define _GREEN  0x00FF00
+#define _BLUE   0x0000FF
+
+void setup() {
+    leds.begin();
+    leds.show();
+}
+
+void loop() {
+    //int microsec = 2000000 / leds.numPixels();  // change them all in 2 seconds
+    int microsec = 1;  // go fast!
+
+    // uncomment for voltage controlled speed
+    // millisec = analogRead(A9) / 40;
+
+    colorWipe(_RED, microsec);
+    colorWipe(_GREEN, microsec);
+    colorWipe(_BLUE, microsec);
+}
+
+void colorWipe(int color, int wait) {
+    for (int i = 0; i < leds.numPixels(); i++) {
+        leds.setPixel(i, color);
+        leds.show();
+        delayMicroseconds(wait);
+    }
+}
+
+#endif
 
 // ----------------- utility functions ----------------------
 
@@ -234,171 +251,26 @@ void initializeMonolith(){
 
     int rate = 100;
 
-    upper_monolith.addStrand(0, 110, GREEN, urate, FORWARD, 5);
-    upper_monolith.addStrand( 144, 110, GREEN, urate, FORWARD, 5);
-    upper_monolith.addStrand(288, 110, GREEN, urate, FORWARD, 5);
-    upper_monolith.addStrand(432, 110, GREEN, urate, FORWARD, 5);
-    upper_monolith.addStrand(576, 110, GREEN, urate, FORWARD, 5);
-    upper_monolith.addStrand(720, 110, GREEN, urate, FORWARD, 5);
-    upper_monolith.addStrand(864, 110, GREEN, urate, FORWARD, 5);
-    upper_monolith.addStrand(1008, 110, GREEN, urate, FORWARD, 5);
+    upper_monolith.addStrand(0, 110, GREEN, rate, FORWARD, 5);
+    upper_monolith.addStrand( 144, 110, GREEN, rate, FORWARD, 5);
+    upper_monolith.addStrand(288, 110, GREEN, rate, FORWARD, 5);
+    upper_monolith.addStrand(432, 110, GREEN, rate, FORWARD, 5);
+    upper_monolith.addStrand(576, 110, GREEN, rate, FORWARD, 5);
+    upper_monolith.addStrand(720, 110, GREEN, rate, FORWARD, 5);
+    upper_monolith.addStrand(864, 110, GREEN, rate, FORWARD, 5);
+    upper_monolith.addStrand(1008, 110, GREEN, rate, FORWARD, 5);
 
     rate = 31;
 
-    lower_monolith.addStrand(0 + 110, 34, BLUE, lrate, FORWARD, 5);
-    lower_monolith.addStrand(144 + 110, 34, BLUE, lrate, FORWARD, 5);
-    lower_monolith.addStrand(288 + 110, 34, BLUE, lrate, FORWARD, 5);
-    lower_monolith.addStrand(432 + 110, 34, BLUE, lrate, FORWARD, 5);
-    lower_monolith.addStrand(576 + 110, 34, BLUE, lrate, FORWARD, 5);
-    lower_monolith.addStrand(720 + 110, 34, BLUE, lrate, FORWARD, 5);
-    lower_monolith.addStrand(864 + 110, 34, BLUE, lrate, FORWARD, 5);
-    lower_monolith.addStrand(1008 + 110, 34, BLUE, lrate, FORWARD, 5);
+    lower_monolith.addStrand(0 + 110, 34, BLUE, rate, FORWARD, 5);
+    lower_monolith.addStrand(144 + 110, 34, BLUE, rate, FORWARD, 5);
+    lower_monolith.addStrand(288 + 110, 34, BLUE, rate, FORWARD, 5);
+    lower_monolith.addStrand(432 + 110, 34, BLUE, rate, FORWARD, 5);
+    lower_monolith.addStrand(576 + 110, 34, BLUE, rate, FORWARD, 5);
+    lower_monolith.addStrand(720 + 110, 34, BLUE, rate, FORWARD, 5);
+    lower_monolith.addStrand(864 + 110, 34, BLUE, rate, FORWARD, 5);
+    lower_monolith.addStrand(1008 + 110, 34, BLUE, rate, FORWARD, 5);
 }
 
 #endif
-//---------------------- Test Code -------------------------------
 
-void doColorWipe(int microsecond) {
-
-    colorWipe(RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, WHITE, RED, microsecond);
-    colorWipe(GREEN, BLUE, YELLOW, CYAN, MAGENTA, WHITE, RED, RED, microsecond);
-    colorWipe(BLUE, YELLOW, CYAN, MAGENTA, WHITE, RED, RED, GREEN, microsecond);
-    colorWipe(YELLOW, CYAN, MAGENTA, WHITE, RED, WHITE, RED, GREEN,
-              microsecond);
-    colorWipe(CYAN, MAGENTA, WHITE, RED, WHITE, RED, GREEN, BLUE, microsecond);
-    colorWipe(CYAN, MAGENTA, WHITE, RED, GREEN, BLUE, YELLOW, CYAN,
-              microsecond);
-    colorWipe(MAGENTA, WHITE, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA,
-              microsecond);
-    colorWipe(WHITE, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, WHITE,
-              microsecond);
-}
-
-void doWhiteWipe(int microseconds) {
-    colorWipe(WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-              microseconds);
-}
-
-void doColorStars(int microsecond) {
-    colorStars(position, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, RED, WHITE,
-               microsecond);
-    position++;
-    if (position >= 144) {
-        position = 0;
-    }
-}
-
-void doRgbStars(int time_usec) {
-    int microsec = time_usec;
-
-    rgbStars(position, 0xff, 0x00, 0x00);
-    position = ((position >= 144) ? 0 : position++);
-    rgbStars(position, 0x00, 0xff, 0x00);
-    position = ((position >= 144) ? 0 : position++);
-    rgbStars(position, 0x00, 0x00, 0xff);
-    position = ((position >= 144) ? 0 : position++);
-    rgbStars(position, 0xff, 0xff, 0x00);
-    position = ((position >= 144) ? 0 : position++);
-    rgbStars(position, 0xff, 0x00, 0xff);
-    position = ((position >= 144) ? 0 : position++);
-    rgbStars(position, 0x00, 0xff, 0xff);
-    position = ((position >= 144) ? 0 : position++);
-    rgbStars(position, 0xff, 0xff, 0xff);
-    position = ((position >= 144) ? 0 : position++);
-
-}
-
-int rgbToInt(RGB _color) {
-    int color = (_color.red << 16) + (_color.green << 8) + _color.blue;
-    return color;
-}
-
-void setPixel(int pixel, RGB color) {
-    leds.setPixel(pixel, rgbToInt(color));
-}
-
-void colorWipe(RGB color0, RGB color1, RGB color2, RGB color3, RGB color4,
-               RGB color5, RGB color6, RGB color7, int wait) {
-    //for (int i=0; i < leds.numPixels(); i++) {
-    for (int i = 0; i < 144; i++) {
-        setPixel(i + 0 * 144, color0);
-        setPixel(i + 1 * 144, color1);
-        setPixel(i + 2 * 144, color2);
-        setPixel(i + 3 * 144, color3);
-        setPixel(i + 4 * 144, color4);
-        setPixel(i + 5 * 144, color5);
-        setPixel(i + 6 * 144, color6);
-        setPixel(i + 7 * 144, color7);
-        leds.show();
-        //delayMicroseconds(20000);
-        delayMicroseconds(00000);
-    }
-}
-
-void
-colorStars(int star_position, RGB color0, RGB color1, RGB color2, RGB color3,
-           RGB color4, RGB color5, RGB color6, RGB color7, int wait) {
-    int i = 0;
-    //for (int i=0; i < leds.numPixels(); i++) {
-    for (int j = 0; j < 144; j++) {
-        i = j;
-        setPixel(i + 0 * 144, color0);
-        setPixel(i + 1 * 144, color1);
-        setPixel(i + 2 * 144, color2);
-        setPixel(i + 3 * 144, color3);
-        setPixel(i + 4 * 144, color4);
-        setPixel(i + 5 * 144, color5);
-        setPixel(i + 6 * 144, color6);
-        setPixel(i + 7 * 144, color7);
-
-        if (i > 0) {
-            i = j - 1;
-            setPixel(i + 0 * 144, OFF);
-            setPixel(i + 1 * 144, OFF);
-            setPixel(i + 2 * 144, OFF);
-            setPixel(i + 3 * 144, OFF);
-            setPixel(i + 4 * 144, OFF);
-            setPixel(i + 5 * 144, OFF);
-            setPixel(i + 6 * 144, OFF);
-            setPixel(i + 7 * 144, OFF);
-        }
-
-        leds.show();
-        //delayMicroseconds(40000);
-        delayMicroseconds(10000);
-    }
-}
-
-void rgbStars(int star_position, int red, int green, int blue) {
-    RGB color = {red, green, blue};
-
-    int i = 0;
-    //for (int i=0; i < leds.numPixels(); i++) {
-    for (int j = 0; j < 144; j++) {
-        i = j;
-        setPixel(i + 0 * 144, color);
-        setPixel(i + 1 * 144, color);
-        setPixel(i + 2 * 144, color);
-        setPixel(i + 3 * 144, color);
-        setPixel(i + 4 * 144, color);
-        setPixel(i + 5 * 144, color);
-        setPixel(i + 6 * 144, color);
-        setPixel(i + 7 * 144, color);
-
-        if (i > 0) {
-            i = j - 1;
-            setPixel(i + 0 * 144, OFF);
-            setPixel(i + 1 * 144, OFF);
-            setPixel(i + 2 * 144, OFF);
-            setPixel(i + 3 * 144, OFF);
-            setPixel(i + 4 * 144, OFF);
-            setPixel(i + 5 * 144, OFF);
-            setPixel(i + 6 * 144, OFF);
-            setPixel(i + 7 * 144, OFF);
-        }
-
-        leds.show();
-        //delayMicroseconds(40000);
-        delayMicroseconds(10000);
-    }
-}
