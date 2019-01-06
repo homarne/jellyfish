@@ -43,19 +43,16 @@
 #include "synapse_lib.h"
 #include "strand.h"
 #include "monolith.h"
+#include "jellyfish.h"
 
 #define TEST_MODE 0
 #define JELLYFISH 1
 #define JELLYFISH_HEAD 2
 #define MONOLITH 3
 
-#define MODE MONOLITH
+#define MODE JELLYFISH
 
-#if MODE == TEST_MODE || MODE == MONOLITH
 const int ledsPerStrip = 1 * 144;
-#else
-const int ledsPerStrip = 1*144;
-#endif
 
 DMAMEM int displayMemory[ledsPerStrip * 6];
 int drawingMemory[ledsPerStrip * 6];
@@ -65,24 +62,22 @@ int position = 0;
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
-#if MODE == JELLYFISH || MODE == JELLYFISH_HEAD
+#if MODE == JELLYFISH
 
-// These are tentacle strands
-Synapse strand_01 = Synapse(leds, 0, 144, RED, 0.8, 100);
-Synapse strand_02 = Synapse(leds, 144, 288, GREEN, 0.8, 70);
-Synapse strand_03 = Synapse(leds, 288, 432, BLUE, 0.8, 40);
-Synapse strand_04 = Synapse(leds, 432, 576, YELLOW, 0.8, 20);
-// These are head strands if JELLYFISH_HEAD, else tentacle strands
-Synapse strand_05 = Synapse(leds, 576, 720, CYAN, 0.8, 30);
-Synapse strand_06 = Synapse(leds, 720, 864, MAGENTA, 0.8, 70);
-Synapse strand_07 = Synapse(leds, 864, 1008, RED, 0.8, 50);
-Synapse strand_08 = Synapse(leds, 1008, 1152, GREEN, 0.8, 60);
+Jellyfish jellyfish = Jellyfish(leds, 8);
 
-#endif // if JELLYFISH || JELLYFISH_HEAD
+#endif
+
+#if MODE == JELLYFISH_HEAD
+
+Jellyfish jellyfish = Jellyfish(leds, 4);
+Jellyfish jellyfish_head = Jellyfish(leds, 4);
+
+#endif
 
 #if MODE == MONOLITH
-#define urate 100
-#define lrate 31
+
+
 
 #define LIGHTHOUSE_COUNT 48
 #define STRAND_CHASE_COUNT 24
@@ -95,32 +90,19 @@ Monolith upper_monolith = Monolith(leds, 8);
 Monolith lower_monolith = Monolith(leds, 8);
 
 #endif
-//
-int status_1 = 0;
-int status_2 = 0;
-int status_3 = 0;
-int status_4 = 0;
-int status_5 = 0;
-int status_6 = 0;
-int status_7 = 0;
-int status_8 = 0;
-
 
 void setup() {
 
+#if MODE == JELLYFISH
+
+    initializeJellyfish();
+
+#endif
+
 #if MODE == JELLYFISH_HEAD
-    strand_05.random_tail_factor_enable = false;
-    strand_05.random_start_delay_enable = false;
-    strand_05.tail_factor=0.99;
-    strand_06.random_tail_factor_enable = false;
-    strand_06.random_start_delay_enable = false;
-    strand_06.tail_factor=0.99;
-    strand_07.random_tail_factor_enable = false;
-    strand_07.random_start_delay_enable = false;
-    strand_07.tail_factor=0.99;
-    strand_08.random_tail_factor_enable = false;
-    strand_08.random_start_delay_enable = false;
-    strand_08.tail_factor=0.99;
+
+    initializeJellyfishHead();
+
 #endif
 
 #if MODE == MONOLITH
@@ -150,18 +132,19 @@ void loop() {
     delayMicroseconds(10000);
 #endif
 
+#if MODE == JELLYFISH
 
-#if MODE == JELLYFISH || MODE == JELLYFISH_HEAD
-    status_1 = strand_01.chaseStep();
-    status_2 = strand_02.chaseStep();
-    status_3 = strand_03.chaseStep();
-    status_4 = strand_04.chaseStep();
-    status_5 = strand_05.chaseStep();
-    status_6 = strand_06.chaseStep();
-    status_7 = strand_07.chaseStep();
-    status_8 = strand_08.chaseStep();
-
+    jellyfish.synapseChaseStep();
     leds.show();
+
+#endif
+
+#if MODE == JELLYFISH_HEAD
+
+    jellyfish.synapseChaseStep();
+    jellyfish_head.synapseChaseStep();
+    leds.show();
+
 #endif
 
 #if MODE == MONOLITH
@@ -202,6 +185,44 @@ void loop() {
     lower_monolith.strandsChaseStep();
 
     leds.show();
+
+#endif
+
+} // end loop
+
+// ----------------- utility functions ----------------------
+
+#if MODE == JELLYFISH
+
+void initializeJellyfish() {
+    jellyfish.addSynapse(0, 144, RED, 0.8, 100);
+    jellyfish.addSynapse(144, 288, GREEN, 0.8, 70);
+    jellyfish.addSynapse(288, 432, BLUE, 0.8, 40);
+    jellyfish.addSynapse(432, 576, YELLOW, 0.8, 20);
+    jellyfish.addSynapse(576, 720, CYAN, 0.8, 30);
+    jellyfish.addSynapse(720, 864, MAGENTA, 0.8, 70);
+    jellyfish.addSynapse(864, 1008, RED, 0.8, 50);
+    jellyfish.addSynapse(1008, 1152, GREEN, 0.8, 60);
+}
+
+#endif
+
+#if MODE == JELLYFISH_HEAD
+
+void initializeJellyfishHead() {
+    jellyfish.addSynapse(0, 144, RED, 0.8, 100);
+    jellyfish.addSynapse(144, 288, GREEN, 0.8, 70);
+    jellyfish.addSynapse(288, 432, BLUE, 0.8, 40);
+    jellyfish.addSynapse(432, 576, YELLOW, 0.8, 20);
+
+    jellyfish_head.addSynapse(576, 720, CYAN, 0.8, 30);
+    jellyfish_head.addSynapse(720, 864, MAGENTA, 0.8, 70);
+    jellyfish_head.addSynapse(864, 1008, RED, 0.8, 50);
+    jellyfish_head.addSynapse(1008, 1152, GREEN, 0.8, 60);
+
+    jellyfish_head.setRandomStartDelayEnabled(false);
+    jellyfish_head.setRandomTailFactorEnabled(false);
+    jellyfish_head.setTailFactor(0.99);
 }
 
 #endif
@@ -210,6 +231,9 @@ void loop() {
 #if MODE == MONOLITH
 
 void initializeMonolith(){
+
+    int rate = 100;
+
     upper_monolith.addStrand(0, 110, GREEN, urate, FORWARD, 5);
     upper_monolith.addStrand( 144, 110, GREEN, urate, FORWARD, 5);
     upper_monolith.addStrand(288, 110, GREEN, urate, FORWARD, 5);
@@ -218,6 +242,8 @@ void initializeMonolith(){
     upper_monolith.addStrand(720, 110, GREEN, urate, FORWARD, 5);
     upper_monolith.addStrand(864, 110, GREEN, urate, FORWARD, 5);
     upper_monolith.addStrand(1008, 110, GREEN, urate, FORWARD, 5);
+
+    rate = 31;
 
     lower_monolith.addStrand(0 + 110, 34, BLUE, lrate, FORWARD, 5);
     lower_monolith.addStrand(144 + 110, 34, BLUE, lrate, FORWARD, 5);
@@ -230,7 +256,7 @@ void initializeMonolith(){
 }
 
 #endif
-//---------- Test Code ---------------
+//---------------------- Test Code -------------------------------
 
 void doColorWipe(int microsecond) {
 

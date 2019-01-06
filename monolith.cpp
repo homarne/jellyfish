@@ -166,7 +166,7 @@ RGB Monolith::crossFadeColor(RGB start_color, RGB end_color, int fade_amount,
 
 running_status Monolith::strandsChaseStep() {
     running_status status;
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < strand_count; i++) {
         status = strands[i]->chase_step();
     }
 
@@ -175,13 +175,13 @@ running_status Monolith::strandsChaseStep() {
 
 
 void Monolith::strandsSetColor(RGB color) {
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < strand_count; i++) {
         strands[i]->setColor(color);
     }
 }
 
 void Monolith::strandsSetWipe(bool wipe) {
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < strand_count; i++) {
         strands[i]->setWipe(wipe);
     }
 }
