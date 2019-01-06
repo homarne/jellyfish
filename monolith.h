@@ -4,8 +4,8 @@
 #include "strand.h"
 #include "rgb_colors.h"
 
-#define LIGHTHOUSE_COUNT 48
-#define STRAND_CHASE_COUNT 24
+//#define LIGHTHOUSE_COUNT 48
+//#define STRAND_CHASE_COUNT 24
 
 typedef Strand *strandpointer;
 
@@ -33,7 +33,8 @@ public:
 
     Monolith();
 
-//private:
+    bool chase_color_rotate_enable = false;
+
     running_status lighthouse();
 
     void nextStrand();
@@ -56,6 +57,18 @@ public:
 
     bool addStrand(int first, int length, RGB _color, int _rate,
                    chase_direction _direction, int _chase_length);
+
+
+    void setFrameRate(int _frame_rate);
+
+    frame_status checkDroppedFrame();
+
+    int rate = 100;
+    int step;
+    int scaled_next_drop;
+    int scaled_drop_one_frame_every;
+
+
 };
 
 #endif //JELLYFISH_3_MONOLITH_H

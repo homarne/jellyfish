@@ -50,7 +50,7 @@
 #define JELLYFISH_HEAD 2
 #define MONOLITH 3
 
-#define MODE JELLYFISH
+#define MODE MONOLITH
 
 const int ledsPerStrip = 1 * 144;
 
@@ -104,24 +104,19 @@ void loop() {
 
 #if MODE == MONOLITH
 
-#define LIGHTHOUSE_COUNT 48
-#define STRAND_CHASE_COUNT 24
+#define LIGHTHOUSE_COUNT 96
+#define STRAND_CHASE_COUNT 48
 
-    int upper_mode = 0;
-    int upper_mode_count = LIGHTHOUSE_COUNT;
-    running_status status = STOPPED;
+int upper_mode = 0;
+int upper_mode_count = LIGHTHOUSE_COUNT;
+running_status status = STOPPED;
 
-    Monolith upper_monolith = Monolith(leds, 8);
-    Monolith lower_monolith = Monolith(leds, 8);
+Monolith upper_monolith = Monolith(leds, 8);
+Monolith lower_monolith = Monolith(leds, 8);
 
 void setup() {
 
     initializeMonolith();
-
-    upper_monolith.strandsSetColor(RED);
-    upper_monolith.strandsSetWipe(true);
-
-    lower_monolith.strandsSetColor(WHITE);
 
     leds.begin();
     leds.show();
@@ -134,7 +129,6 @@ void loop() {
             upper_mode = 1;
             upper_mode_count = STRAND_CHASE_COUNT;
         } else {
-            //status = lighthouse();
             status = upper_monolith.lighthouse();
             if (status == LAST_PIXEL) {
                 upper_mode_count--;
@@ -147,21 +141,13 @@ void loop() {
             upper_mode = 0;
             upper_mode_count = LIGHTHOUSE_COUNT;
         } else {
-            //status = strandsChaseStep(upper_strands);
             status = upper_monolith.strandsChaseStep();
-
-
             if (status == LAST_PIXEL) {
-                //RGB color = nextColor();
-                //strandsSetColor(upper_strands, color);
-                RGB color = upper_monolith.nextColor();
-                upper_monolith.strandsSetColor(color);
                 upper_mode_count--;
             }
         }
     }
 
-    //strandsChaseStep(lower_strands);
     lower_monolith.strandsChaseStep();
 
     leds.show();
@@ -179,6 +165,7 @@ void loop() {
 #define _RED    0xFF0000
 #define _GREEN  0x00FF00
 #define _BLUE   0x0000FF
+#define _WHITE  0xFFFFFF
 
 void setup() {
     leds.begin();
@@ -187,14 +174,21 @@ void setup() {
 
 void loop() {
     //int microsec = 2000000 / leds.numPixels();  // change them all in 2 seconds
-    int microsec = 1;  // go fast!
+    int microsec = 1000;  // go fast!
 
     // uncomment for voltage controlled speed
     // millisec = analogRead(A9) / 40;
 
-    colorWipe(_RED, microsec);
-    colorWipe(_GREEN, microsec);
+//    colorWipe(_RED, microsec);
+//    colorWipe(_GREEN, microsec);
+//    colorWipe(_BLUE, microsec);
+//    colorWipe(_WHITE, microsec);
+
+
+    colorWipe(_WHITE, microsec);
     colorWipe(_BLUE, microsec);
+    colorWipe(_GREEN, microsec);
+
 }
 
 void colorWipe(int color, int wait) {
@@ -247,29 +241,40 @@ void initializeJellyfishHead() {
 
 #if MODE == MONOLITH
 
-void initializeMonolith(){
+void initializeMonolith() {
 
-    int rate = 100;
+    int rate = 50;
+    int strand_len = 110;
+    RGB color = RED;
+    chase_direction chase_dir = FORWARD;
+    int chase_len = 5;
 
-    upper_monolith.addStrand(0, 110, GREEN, rate, FORWARD, 5);
-    upper_monolith.addStrand( 144, 110, GREEN, rate, FORWARD, 5);
-    upper_monolith.addStrand(288, 110, GREEN, rate, FORWARD, 5);
-    upper_monolith.addStrand(432, 110, GREEN, rate, FORWARD, 5);
-    upper_monolith.addStrand(576, 110, GREEN, rate, FORWARD, 5);
-    upper_monolith.addStrand(720, 110, GREEN, rate, FORWARD, 5);
-    upper_monolith.addStrand(864, 110, GREEN, rate, FORWARD, 5);
-    upper_monolith.addStrand(1008, 110, GREEN, rate, FORWARD, 5);
+    upper_monolith.addStrand(0, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(144, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(288, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(432, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(576, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(720, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(864, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(1008, strand_len, color, rate, chase_dir, chase_len);
 
-    rate = 31;
+    upper_monolith.chase_color_rotate_enable = true;
+    upper_monolith.setFrameRate(70);
+    upper_monolith.strandsSetWipe(true);
 
-    lower_monolith.addStrand(0 + 110, 34, BLUE, rate, FORWARD, 5);
-    lower_monolith.addStrand(144 + 110, 34, BLUE, rate, FORWARD, 5);
-    lower_monolith.addStrand(288 + 110, 34, BLUE, rate, FORWARD, 5);
-    lower_monolith.addStrand(432 + 110, 34, BLUE, rate, FORWARD, 5);
-    lower_monolith.addStrand(576 + 110, 34, BLUE, rate, FORWARD, 5);
-    lower_monolith.addStrand(720 + 110, 34, BLUE, rate, FORWARD, 5);
-    lower_monolith.addStrand(864 + 110, 34, BLUE, rate, FORWARD, 5);
-    lower_monolith.addStrand(1008 + 110, 34, BLUE, rate, FORWARD, 5);
+    rate = 25;
+    strand_len = 34;
+    color = WHITE;
+    chase_dir = REVERSE;
+
+    lower_monolith.addStrand(0 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(144 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(288 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(432 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(576 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(720 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(864 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(1008 + 110, strand_len, color, rate, chase_dir, chase_len);
 }
 
 #endif

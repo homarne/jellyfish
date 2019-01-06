@@ -22,6 +22,7 @@ Monolith::Monolith(OctoWS2811 _strip,
     ramp_up_color = current_color;
     hold_color = ramp_up_color;
     ramp_down_color = hold_color;
+    setFrameRate(rate);
     status = STOPPED;
 }
 
@@ -46,9 +47,30 @@ bool Monolith::addStrand(int first,
 }
 
 
+running_status Monolith::strandsChaseStep() {
+    running_status status;
+    for (int i = 0; i < strand_count; i++) {
+        status = strands[i]->chase_step();
+    }
+
+    if (chase_color_rotate_enable == true){
+        if (status == LAST_PIXEL) {
+            RGB color = nextColor();
+            strandsSetColor(color);
+        }
+    }
+
+    return status;
+}
+
+
 running_status Monolith::lighthouse() {
     RGB color;
     running_status status;
+
+    if (checkDroppedFrame() == DROP) {
+        return (running_status) RUNNING;
+    }
 
     // the current strand (strand_index) continues at full brightness...
     int next_strand = (strand_index + 1);
@@ -141,6 +163,43 @@ RGB Monolith::scaleBrightness(RGB _color, int level) {
 
 }
 
+void Monolith::setFrameRate(int _frame_rate) {
+    rate = _frame_rate;
+
+    if (rate >= 100) {
+        rate = 100;
+        scaled_drop_one_frame_every = 0;
+    } else {
+        scaled_drop_one_frame_every = (100 * 100) / (100 - rate);
+    }
+
+    if (rate < 0) rate = 0;
+
+    scaled_next_drop += scaled_drop_one_frame_every;
+}
+
+frame_status Monolith::checkDroppedFrame() {
+
+    if (rate == 100) return (frame_status) RUN;
+    if (rate == 0) return (frame_status) DROP;
+
+    step += 1;
+    if ((step > 100) || (step <= 0)) {
+        step = 1;
+        scaled_next_drop = scaled_drop_one_frame_every;
+    }
+
+    frame_status status = RUN;
+    int scaled_step = 100 * step;
+
+    if (scaled_step >= scaled_next_drop) {
+        scaled_next_drop += scaled_drop_one_frame_every;
+        status = DROP;
+    }
+
+    return status;
+}
+
 // untested
 RGB Monolith::crossFadeColor(RGB start_color, RGB end_color, int fade_amount,
                              int fade_steps) {
@@ -161,16 +220,6 @@ RGB Monolith::crossFadeColor(RGB start_color, RGB end_color, int fade_amount,
     crossfade_color.green = start_color.green + (fade_amount * green_step);
     crossfade_color.blue = start_color.blue + (fade_amount * blue_step);
     return crossfade_color;
-}
-
-
-running_status Monolith::strandsChaseStep() {
-    running_status status;
-    for (int i = 0; i < strand_count; i++) {
-        status = strands[i]->chase_step();
-    }
-
-    return status;
 }
 
 
