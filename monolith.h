@@ -69,6 +69,9 @@ public:
     int scaled_drop_one_frame_every;
 
 
+    void strandsSetRate(int _rate);
+
+    void strandsSetDirection(chase_direction _direction);
 };
 
 #endif //JELLYFISH_3_MONOLITH_H

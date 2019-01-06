@@ -79,6 +79,17 @@ void loop() {
     leds.show();
 }
 
+void initializeJellyfish() {
+    jellyfish.addSynapse(0, 144, RED, 0.8, 100);
+    jellyfish.addSynapse(144, 288, GREEN, 0.8, 70);
+    jellyfish.addSynapse(288, 432, BLUE, 0.8, 40);
+    jellyfish.addSynapse(432, 576, YELLOW, 0.8, 20);
+    jellyfish.addSynapse(576, 720, CYAN, 0.8, 30);
+    jellyfish.addSynapse(720, 864, MAGENTA, 0.8, 70);
+    jellyfish.addSynapse(864, 1008, RED, 0.8, 50);
+    jellyfish.addSynapse(1008, 1152, GREEN, 0.8, 60);
+}
+
 #endif
 
 #if MODE == JELLYFISH_HEAD
@@ -100,15 +111,43 @@ void loop() {
     leds.show();
 }
 
+void initializeJellyfishHead() {
+    jellyfish.addSynapse(0, 144, RED, 0.8, 100);
+    jellyfish.addSynapse(144, 288, GREEN, 0.8, 70);
+    jellyfish.addSynapse(288, 432, BLUE, 0.8, 40);
+    jellyfish.addSynapse(432, 576, YELLOW, 0.8, 20);
+
+    jellyfish_head.addSynapse(576, 720, CYAN, 0.8, 30);
+    jellyfish_head.addSynapse(720, 864, MAGENTA, 0.8, 70);
+    jellyfish_head.addSynapse(864, 1008, RED, 0.8, 50);
+    jellyfish_head.addSynapse(1008, 1152, GREEN, 0.8, 60);
+
+    jellyfish_head.setRandomStartDelayEnabled(false);
+    jellyfish_head.setRandomTailFactorEnabled(false);
+    jellyfish_head.setTailFactor(0.99);
+}
+
 #endif
 
 #if MODE == MONOLITH
 
+
 #define LIGHTHOUSE_COUNT 96
 #define STRAND_CHASE_COUNT 48
+#define LOWER_MODE_COUNT 16
 
-int upper_mode = 0;
+enum modes {LIGHTHOUSE, COLORWIPE};
+
+//modes umode = LIGHTHOUSE;
+//int umode_count = LIGHTHOUSE_COUNT;
+
+
+int upper_mode = LIGHTHOUSE;
 int upper_mode_count = LIGHTHOUSE_COUNT;
+
+//int lower_mode = LIGHTHOUSE;
+int lower_mode_count = LOWER_MODE_COUNT;
+
 running_status status = STOPPED;
 
 Monolith upper_monolith = Monolith(leds, 8);
@@ -124,34 +163,77 @@ void setup() {
 
 void loop() {
 
-    if (upper_mode == 0) {
-        if (upper_mode_count <= 0) {
-            upper_mode = 1;
-            upper_mode_count = STRAND_CHASE_COUNT;
-        } else {
-            status = upper_monolith.lighthouse();
-            if (status == LAST_PIXEL) {
-                upper_mode_count--;
-            }
-        }
+    if (upper_mode == LIGHTHOUSE){
+        status = upper_monolith.lighthouse();
+        updateUpperMode(status, COLORWIPE, STRAND_CHASE_COUNT);
     }
 
-    if (upper_mode == 1) {
-        if (upper_mode_count <= 0) {
-            upper_mode = 0;
-            upper_mode_count = LIGHTHOUSE_COUNT;
-        } else {
-            status = upper_monolith.strandsChaseStep();
-            if (status == LAST_PIXEL) {
-                upper_mode_count--;
-            }
-        }
+    if (upper_mode == COLORWIPE){
+        status = upper_monolith.strandsChaseStep();
+        updateUpperMode(status, LIGHTHOUSE, LIGHTHOUSE_COUNT);
     }
 
-    lower_monolith.strandsChaseStep();
+
+    status = lower_monolith.strandsChaseStep();
+    updateLowerMode(status);
 
     leds.show();
 
+}
+
+void updateUpperMode(running_status status, modes next_mode, int next_mode_count){
+    if (status == LAST_PIXEL) {upper_mode_count--;}
+    if (upper_mode_count <= 0){
+        upper_mode_count = next_mode_count;
+        upper_mode = next_mode;
+    }
+}
+
+void updateLowerMode(running_status status){
+    if (status == LAST_PIXEL) {lower_mode_count--;}
+    if (lower_mode_count <= 0){
+        lower_mode_count = random(16,32);
+        lower_monolith.strandsSetRate(random(15,35));
+        //int test = random(0,1);
+        //chase_direction dir = random(0,1);
+        lower_monolith.strandsSetDirection((chase_direction)random(0,2));
+    }
+}
+
+void initializeMonolith() {
+
+    int rate = 50;
+    int strand_len = 110;
+    RGB color = RED;
+    chase_direction chase_dir = FORWARD;
+    int chase_len = 5;
+
+    upper_monolith.addStrand(0, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(144, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(288, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(432, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(576, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(720, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(864, strand_len, color, rate, chase_dir, chase_len);
+    upper_monolith.addStrand(1008, strand_len, color, rate, chase_dir, chase_len);
+
+    upper_monolith.chase_color_rotate_enable = true;
+    upper_monolith.setFrameRate(70);
+    upper_monolith.strandsSetWipe(true);
+
+    rate = 25;
+    strand_len = 34;
+    color = WHITE;
+    chase_dir = REVERSE;
+
+    lower_monolith.addStrand(0 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(144 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(288 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(432 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(576 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(720 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(864 + 110, strand_len, color, rate, chase_dir, chase_len);
+    lower_monolith.addStrand(1008 + 110, strand_len, color, rate, chase_dir, chase_len);
 }
 
 #endif
@@ -203,79 +285,22 @@ void colorWipe(int color, int wait) {
 
 // ----------------- utility functions ----------------------
 
-#if MODE == JELLYFISH
-
-void initializeJellyfish() {
-    jellyfish.addSynapse(0, 144, RED, 0.8, 100);
-    jellyfish.addSynapse(144, 288, GREEN, 0.8, 70);
-    jellyfish.addSynapse(288, 432, BLUE, 0.8, 40);
-    jellyfish.addSynapse(432, 576, YELLOW, 0.8, 20);
-    jellyfish.addSynapse(576, 720, CYAN, 0.8, 30);
-    jellyfish.addSynapse(720, 864, MAGENTA, 0.8, 70);
-    jellyfish.addSynapse(864, 1008, RED, 0.8, 50);
-    jellyfish.addSynapse(1008, 1152, GREEN, 0.8, 60);
-}
-
-#endif
-
-#if MODE == JELLYFISH_HEAD
-
-void initializeJellyfishHead() {
-    jellyfish.addSynapse(0, 144, RED, 0.8, 100);
-    jellyfish.addSynapse(144, 288, GREEN, 0.8, 70);
-    jellyfish.addSynapse(288, 432, BLUE, 0.8, 40);
-    jellyfish.addSynapse(432, 576, YELLOW, 0.8, 20);
-
-    jellyfish_head.addSynapse(576, 720, CYAN, 0.8, 30);
-    jellyfish_head.addSynapse(720, 864, MAGENTA, 0.8, 70);
-    jellyfish_head.addSynapse(864, 1008, RED, 0.8, 50);
-    jellyfish_head.addSynapse(1008, 1152, GREEN, 0.8, 60);
-
-    jellyfish_head.setRandomStartDelayEnabled(false);
-    jellyfish_head.setRandomTailFactorEnabled(false);
-    jellyfish_head.setTailFactor(0.99);
-}
-
-#endif
-
-
-#if MODE == MONOLITH
-
-void initializeMonolith() {
-
-    int rate = 50;
-    int strand_len = 110;
-    RGB color = RED;
-    chase_direction chase_dir = FORWARD;
-    int chase_len = 5;
-
-    upper_monolith.addStrand(0, strand_len, color, rate, chase_dir, chase_len);
-    upper_monolith.addStrand(144, strand_len, color, rate, chase_dir, chase_len);
-    upper_monolith.addStrand(288, strand_len, color, rate, chase_dir, chase_len);
-    upper_monolith.addStrand(432, strand_len, color, rate, chase_dir, chase_len);
-    upper_monolith.addStrand(576, strand_len, color, rate, chase_dir, chase_len);
-    upper_monolith.addStrand(720, strand_len, color, rate, chase_dir, chase_len);
-    upper_monolith.addStrand(864, strand_len, color, rate, chase_dir, chase_len);
-    upper_monolith.addStrand(1008, strand_len, color, rate, chase_dir, chase_len);
-
-    upper_monolith.chase_color_rotate_enable = true;
-    upper_monolith.setFrameRate(70);
-    upper_monolith.strandsSetWipe(true);
-
-    rate = 25;
-    strand_len = 34;
-    color = WHITE;
-    chase_dir = REVERSE;
-
-    lower_monolith.addStrand(0 + 110, strand_len, color, rate, chase_dir, chase_len);
-    lower_monolith.addStrand(144 + 110, strand_len, color, rate, chase_dir, chase_len);
-    lower_monolith.addStrand(288 + 110, strand_len, color, rate, chase_dir, chase_len);
-    lower_monolith.addStrand(432 + 110, strand_len, color, rate, chase_dir, chase_len);
-    lower_monolith.addStrand(576 + 110, strand_len, color, rate, chase_dir, chase_len);
-    lower_monolith.addStrand(720 + 110, strand_len, color, rate, chase_dir, chase_len);
-    lower_monolith.addStrand(864 + 110, strand_len, color, rate, chase_dir, chase_len);
-    lower_monolith.addStrand(1008 + 110, strand_len, color, rate, chase_dir, chase_len);
-}
-
-#endif
+//#if MODE == JELLYFISH
+//
+//
+//
+//#endif
+//
+//#if MODE == JELLYFISH_HEAD
+//
+//
+//
+//#endif
+//
+//
+//#if MODE == MONOLITH
+//
+//
+//
+//#endif
 

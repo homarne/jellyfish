@@ -234,3 +234,15 @@ void Monolith::strandsSetWipe(bool wipe) {
         strands[i]->setWipe(wipe);
     }
 }
+
+void Monolith::strandsSetRate(int _rate) {
+    for (int i = 0; i < strand_count; i++) {
+        strands[i]->setFrameRate(_rate);
+    }
+}
+
+void Monolith::strandsSetDirection(chase_direction _direction) {
+    for (int i = 0; i < strand_count; i++) {
+        strands[i]->direction = _direction;
+    }
+}
